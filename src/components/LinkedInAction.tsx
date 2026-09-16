@@ -20,32 +20,16 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
   const handleCombinedAction = async () => {
     if (!hasMessage && !hasValidUrl) return;
 
-    let openedWindow: Window | null = null;
+    let copySuccessful = false;
 
-    // 1. Trigger window.open during user activation gesture
-    if (hasValidUrl && linkedInUrl) {
-      try {
-        openedWindow = window.open(linkedInUrl, '_blank', 'noopener,noreferrer');
-        if (!openedWindow || openedWindow.closed || typeof openedWindow.closed === 'undefined') {
-          setPopupBlocked(true);
-        } else {
-          setPopupBlocked(false);
-        }
-      } catch {
-        setPopupBlocked(true);
-      }
-    }
-
-    // 2. Attempt clipboard write with the exact unmodified message
+    // 1. Copy the message to clipboard first
     if (hasMessage) {
       try {
         if (navigator.clipboard && window.isSecureContext) {
           await navigator.clipboard.writeText(message);
-          setCopied(true);
-          setFeedbackText('Message copied');
-          setTimeout(() => setCopied(false), 3000);
+          copySuccessful = true;
         } else {
-          // Fallback if clipboard API not available
+          // Fallback if clipboard API not available in current context
           const textArea = document.createElement('textarea');
           textArea.value = message;
           textArea.style.position = 'fixed';
@@ -54,33 +38,67 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
           document.body.appendChild(textArea);
           textArea.focus();
           textArea.select();
-          const success = document.execCommand('copy');
+          copySuccessful = document.execCommand('copy');
           document.body.removeChild(textArea);
-
-          if (success) {
-            setCopied(true);
-            setFeedbackText('Message copied');
-            setTimeout(() => setCopied(false), 3000);
-          } else {
-            setShowFallbackModal(true);
-          }
         }
       } catch {
-        setShowFallbackModal(true);
+        copySuccessful = false;
       }
+    } else {
+      copySuccessful = true;
+    }
+
+    if (copySuccessful) {
+      setCopied(true);
+      setFeedbackText('Message copied');
+      setTimeout(() => setCopied(false), 3000);
+
+      // 2. Redirect/Open LinkedIn only after successful copy
+      if (hasValidUrl && linkedInUrl) {
+        try {
+          const openedWindow = window.open(linkedInUrl, '_blank', 'noopener,noreferrer');
+          if (!openedWindow || openedWindow.closed || typeof openedWindow.closed === 'undefined') {
+            setPopupBlocked(true);
+          } else {
+            setPopupBlocked(false);
+          }
+        } catch {
+          setPopupBlocked(true);
+        }
+      }
+    } else {
+      // If automatic copy fails, show fallback modal for manual copy before opening
+      setShowFallbackModal(true);
     }
   };
 
   const handleOnlyCopy = async () => {
     if (!hasMessage) return;
     try {
-      if (navigator.clipboard) {
+      if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(message);
         setCopied(true);
         setFeedbackText('Message copied');
         setTimeout(() => setCopied(false), 3000);
       } else {
-        setShowFallbackModal(true);
+        const textArea = document.createElement('textarea');
+        textArea.value = message;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        const success = document.execCommand('copy');
+        document.body.removeChild(textArea);
+
+        if (success) {
+          setCopied(true);
+          setFeedbackText('Message copied');
+          setTimeout(() => setCopied(false), 3000);
+        } else {
+          setShowFallbackModal(true);
+        }
       }
     } catch {
       setShowFallbackModal(true);
