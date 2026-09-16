@@ -1,9 +1,10 @@
-import { normalizeNotionPage } from './mapper';
-import { Lead } from '@/types/lead';
+import { normalizeNotionPage, normalizeAiVideoNotionPage } from './mapper';
+import { Lead, VerticalId } from '@/types/lead';
 
 export interface FetchLeadsOptions {
   cursor?: string | null;
   pageSize?: number;
+  vertical?: 'all' | VerticalId;
 }
 
 export interface FetchLeadsResult {
@@ -26,8 +27,9 @@ export interface FetchLeadResult {
   };
 }
 
-const DEFAULT_DATABASE_ID = '3d67f6ba-af95-80a3-8e5d-d540076d4370';
-const DEFAULT_DATA_SOURCE_ID = '54c7f6ba-af95-826b-a9d6-870cda35a5dc';
+const DEFAULT_GTM_DATABASE_ID = '3d67f6ba-af95-80a3-8e5d-d540076d4370';
+const DEFAULT_GTM_DATA_SOURCE_ID = '54c7f6ba-af95-826b-a9d6-870cda35a5dc';
+const DEFAULT_AI_VIDEO_DATABASE_ID = 'e19006b9-a8ef-4be3-b487-c376633217ae';
 
 async function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -86,12 +88,11 @@ async function queryNotionWithRetry(
 }
 
 /**
- * Server-side client function to fetch and normalize GTM leads from Notion.
+ * Fetches leads from the AI Video database.
  */
-export async function fetchLeadsFromNotion(options: FetchLeadsOptions = {}): Promise<FetchLeadsResult> {
+export async function fetchAiVideoLeads(options: FetchLeadsOptions = {}): Promise<FetchLeadsResult> {
   const token = process.env.NOTION_TOKEN?.trim();
-  const databaseId = process.env.NOTION_DATABASE_ID?.trim() || DEFAULT_DATABASE_ID;
-  const dataSourceId = process.env.NOTION_DATA_SOURCE_ID?.trim() || DEFAULT_DATA_SOURCE_ID;
+  const databaseId = process.env.NOTION_AI_VIDEO_DATABASE_ID?.trim() || DEFAULT_AI_VIDEO_DATABASE_ID;
 
   if (!token) {
     return {
@@ -101,7 +102,72 @@ export async function fetchLeadsFromNotion(options: FetchLeadsOptions = {}): Pro
       error: {
         code: 'CONFIG_REQUIRED',
         message: 'Notion integration token is not configured.',
-        details: 'Add NOTION_TOKEN to your .env.local file and share the "GTM Automation - CRM" database with your integration.',
+      },
+    };
+  }
+
+  const requestBody: Record<string, any> = {
+    page_size: options.pageSize || 100,
+  };
+  if (options.cursor) {
+    requestBody.start_cursor = options.cursor;
+  }
+
+  try {
+    const databaseUrl = `https://api.notion.com/v1/databases/${databaseId}/query`;
+    const response = await queryNotionWithRetry(databaseUrl, token, requestBody, '2022-06-28');
+
+    if (!response.ok) {
+      const errorJson = await response.json().catch(() => ({}));
+      return {
+        leads: [],
+        hasMore: false,
+        nextCursor: null,
+        error: {
+          code: response.status === 401 ? 'UNAUTHORIZED' : 'FETCH_ERROR',
+          message: errorJson.message || `Notion API returned HTTP ${response.status}`,
+        },
+      };
+    }
+
+    const data = await response.json();
+    const results = Array.isArray(data.results) ? data.results : [];
+    const leads = results.map((page: any) => normalizeAiVideoNotionPage(page));
+
+    return {
+      leads,
+      hasMore: Boolean(data.has_more),
+      nextCursor: data.next_cursor || null,
+    };
+  } catch (error: any) {
+    return {
+      leads: [],
+      hasMore: false,
+      nextCursor: null,
+      error: {
+        code: 'FETCH_ERROR',
+        message: error?.message || 'Failed to fetch AI Video leads',
+      },
+    };
+  }
+}
+
+/**
+ * Fetches leads from the GTM database.
+ */
+export async function fetchGtmLeads(options: FetchLeadsOptions = {}): Promise<FetchLeadsResult> {
+  const token = process.env.NOTION_TOKEN?.trim();
+  const databaseId = process.env.NOTION_DATABASE_ID?.trim() || DEFAULT_GTM_DATABASE_ID;
+  const dataSourceId = process.env.NOTION_DATA_SOURCE_ID?.trim() || DEFAULT_GTM_DATA_SOURCE_ID;
+
+  if (!token) {
+    return {
+      leads: [],
+      hasMore: false,
+      nextCursor: null,
+      error: {
+        code: 'CONFIG_REQUIRED',
+        message: 'Notion integration token is not configured.',
       },
     };
   }
@@ -124,55 +190,13 @@ export async function fetchLeadsFromNotion(options: FetchLeadsOptions = {}): Pro
 
     if (!response.ok) {
       const errorJson = await response.json().catch(() => ({}));
-      const errorMsg = errorJson.message || `Notion API returned HTTP ${response.status}`;
-
-      if (response.status === 401) {
-        return {
-          leads: [],
-          hasMore: false,
-          nextCursor: null,
-          error: {
-            code: 'UNAUTHORIZED',
-            message: 'Invalid Notion integration token.',
-            details: errorMsg,
-          },
-        };
-      }
-
-      if (response.status === 403 || response.status === 404) {
-        return {
-          leads: [],
-          hasMore: false,
-          nextCursor: null,
-          error: {
-            code: 'NOT_FOUND_OR_FORBIDDEN',
-            message: 'Cannot access the Notion database or data source.',
-            details: 'Ensure your Notion integration has been invited/shared with the "GTM Automation - CRM" database with read permissions.',
-          },
-        };
-      }
-
-      if (response.status === 429) {
-        return {
-          leads: [],
-          hasMore: false,
-          nextCursor: null,
-          error: {
-            code: 'RATE_LIMITED',
-            message: 'Notion API rate limit exceeded.',
-            details: errorMsg,
-          },
-        };
-      }
-
       return {
         leads: [],
         hasMore: false,
         nextCursor: null,
         error: {
-          code: 'FETCH_ERROR',
-          message: 'Failed to fetch leads from Notion.',
-          details: errorMsg,
+          code: response.status === 401 ? 'UNAUTHORIZED' : 'FETCH_ERROR',
+          message: errorJson.message || `Notion API returned HTTP ${response.status}`,
         },
       };
     }
@@ -193,11 +217,42 @@ export async function fetchLeadsFromNotion(options: FetchLeadsOptions = {}): Pro
       nextCursor: null,
       error: {
         code: 'FETCH_ERROR',
-        message: 'Network or unexpected error while connecting to Notion.',
-        details: error?.message || String(error),
+        message: error?.message || 'Failed to fetch GTM leads',
       },
     };
   }
+}
+
+/**
+ * Server-side client function to fetch leads from Notion based on selected vertical.
+ */
+export async function fetchLeadsFromNotion(options: FetchLeadsOptions = {}): Promise<FetchLeadsResult> {
+  const vertical = options.vertical || 'all';
+
+  if (vertical === 'ai_video') {
+    return fetchAiVideoLeads(options);
+  }
+
+  if (vertical === 'gtm') {
+    return fetchGtmLeads(options);
+  }
+
+  // If 'all': fetch from both verticals concurrently
+  const [gtmRes, aiVideoRes] = await Promise.all([
+    fetchGtmLeads(options),
+    fetchAiVideoLeads(options),
+  ]);
+
+  if (gtmRes.error && aiVideoRes.error) {
+    return gtmRes;
+  }
+
+  const combinedLeads = [...(gtmRes.leads || []), ...(aiVideoRes.leads || [])];
+  return {
+    leads: combinedLeads,
+    hasMore: gtmRes.hasMore || aiVideoRes.hasMore,
+    nextCursor: gtmRes.nextCursor || aiVideoRes.nextCursor,
+  };
 }
 
 /**
@@ -253,39 +308,4 @@ export async function fetchLeadByIdFromNotion(pageId: string): Promise<FetchLead
       },
     };
   }
-}
-
-/**
- * Recursively fetches all pages of leads using cursor pagination.
- */
-export async function fetchAllLeadsFromNotion(): Promise<FetchLeadsResult> {
-  const allLeads: Lead[] = [];
-  let cursor: string | null = null;
-  let hasMore = true;
-
-  while (hasMore) {
-    const pageResult: FetchLeadsResult = await fetchLeadsFromNotion({ cursor, pageSize: 100 });
-    if (pageResult.error) {
-      return {
-        leads: allLeads,
-        hasMore: false,
-        nextCursor: null,
-        error: pageResult.error,
-      };
-    }
-
-    allLeads.push(...pageResult.leads);
-    hasMore = pageResult.hasMore;
-    cursor = pageResult.nextCursor;
-
-    if (!cursor) {
-      break;
-    }
-  }
-
-  return {
-    leads: allLeads,
-    hasMore: false,
-    nextCursor: null,
-  };
 }

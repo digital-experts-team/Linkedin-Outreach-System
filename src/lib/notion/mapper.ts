@@ -32,17 +32,27 @@ export function extractSelect(selectProp: any): string | null {
  * Extracts date start value string safely.
  */
 export function extractDate(dateProp: any): string | null {
-  return dateProp?.date?.start || null;
+  if (dateProp?.date?.start) {
+    return dateProp.date.start;
+  }
+  if (dateProp?.type === 'rich_text') {
+    return flattenRichText(dateProp.rich_text)?.trim() || null;
+  }
+  return null;
 }
 
 /**
  * Extracts multi-select value strings array.
  */
 export function extractMultiSelect(multiSelectProp: any): string[] {
-  if (!multiSelectProp?.multi_select || !Array.isArray(multiSelectProp.multi_select)) {
-    return [];
+  if (multiSelectProp?.multi_select && Array.isArray(multiSelectProp.multi_select)) {
+    return multiSelectProp.multi_select.map((item: any) => item.name).filter(Boolean);
   }
-  return multiSelectProp.multi_select.map((item: any) => item.name).filter(Boolean);
+  if (multiSelectProp?.type === 'rich_text') {
+    const text = flattenRichText(multiSelectProp.rich_text)?.trim();
+    return text ? [text] : [];
+  }
+  return [];
 }
 
 /**
@@ -137,13 +147,98 @@ export function parseScore(scoreSelect: { name?: string } | undefined | null): S
 }
 
 /**
+ * Normalizes an AI Video Notion page object into a typed Lead model.
+ * Outer page: Details (heading) + LinkedIn DM.
+ * Inner page: Why Signal Apt, Posted date, and all necessary details.
+ */
+export function normalizeAiVideoNotionPage(page: any): Lead {
+  const properties = page.properties || {};
+
+  // Outer Page: Heading is Details (title property)
+  const detailsHeading = flattenTitle(properties['Details']?.title)?.trim();
+  const roleHeading = detailsHeading || flattenRichText(properties['Role']?.rich_text)?.trim() || 'Untitled lead';
+
+  // Contact / Poster display name
+  const primaryContactName = flattenRichText(properties['Primary Contact Name']?.rich_text)?.trim();
+  const postedByRaw = primaryContactName || flattenRichText(properties['Posted by']?.rich_text)?.trim() || null;
+  const companyRaw = flattenRichText(properties['Company']?.rich_text)?.trim() || null;
+
+  // Status & Score
+  const linkedInStatusSelect = properties['LinkedIn Status']?.select;
+  const linkedInStatus = linkedInStatusSelect?.name?.trim() || 'No status';
+  const score = parseScore(properties['Score']?.select);
+
+  // Outer Page & Outreach: LinkedIn DM
+  const linkedInDm = flattenRichText(properties['LinkedIn DM']?.rich_text);
+
+  // Contacts
+  const primaryContactLinkedIn = validateLinkedInUrl(properties['Primary Contact LinkedIn']?.url);
+  const emailRaw = properties['Primary Contact Email']?.email;
+  const primaryContactEmail = typeof emailRaw === 'string' && emailRaw.trim() ? emailRaw.trim() : null;
+  const phoneRaw = properties['Phone']?.phone_number;
+  const phone = typeof phoneRaw === 'string' && phoneRaw.trim() ? phoneRaw.trim() : null;
+
+  // Inner Page: Why Signal Apt & Posted date
+  const whySignalApt =
+    flattenRichText(properties['Why Signal Apt']?.rich_text) ||
+    flattenRichText(properties['Why Signal apt']?.rich_text) ||
+    null;
+
+  const posted = extractDate(properties['Posted']) || extractDate(properties['Signal Date']);
+  const signalSnippet = flattenRichText(properties['Signal Snippet']?.rich_text)?.trim() || null;
+  const signalType = extractSelect(properties['Signal Type']);
+  const painPoints = extractMultiSelect(properties['Pain Points']);
+  const enrichmentNotes = flattenRichText(properties['Enrichment Notes']?.rich_text)?.trim() || null;
+  const notes = flattenRichText(properties['Notes']?.rich_text)?.trim() || null;
+  const sourceLink = properties['Source Link']?.url?.trim() || properties['Signal Link']?.url?.trim() || null;
+  const linkedInPostUrl = properties['LinkedIn Post URL']?.url?.trim() || null;
+  const location = flattenRichText(properties['Location']?.rich_text)?.trim() || null;
+  const sourceType = extractSelect(properties['Source Type']) || 'LinkedIn';
+  const stage = extractSelect(properties['Stage']);
+
+  return {
+    id: page.id,
+    notionUrl: page.url || `https://www.notion.so/${page.id.replace(/-/g, '')}`,
+    role: roleHeading,
+    postedBy: postedByRaw,
+    company: companyRaw,
+    linkedInStatus,
+    linkedInDm,
+    primaryContactLinkedIn,
+    primaryContactEmail,
+    phone,
+    score,
+    verticalId: 'ai_video',
+    verticalLabel: 'AI Video & Hiring',
+
+    whySignalApt,
+    posted,
+    signalSnippet,
+    signalType,
+    painPoints,
+    enrichmentNotes,
+    notes,
+    sourceLink,
+    linkedInPostUrl,
+    location,
+    sourceType,
+    stage,
+  };
+}
+
+/**
  * Normalizes a raw Notion page object into a typed Lead model
- * using authoritative field mapping rules.
+ * using authoritative field mapping rules. Automatically detects AI Video vs GTM pages.
  */
 export function normalizeNotionPage(page: any): Lead {
   const properties = page.properties || {};
 
-  // 1. Job Role extraction with smart fallback
+  // If page has "Why Signal Apt", "Signal Snippet", or "Signal Type", it is an AI Video page
+  if (properties['Why Signal Apt'] || properties['Why Signal apt'] || properties['Signal Type'] || properties['Primary Contact Name']) {
+    return normalizeAiVideoNotionPage(page);
+  }
+
+  // 1. Job Role extraction with smart fallback (GTM)
   const roleRaw = flattenRichText(properties['Role']?.rich_text)?.trim();
   const detailsRaw = flattenTitle(properties['Details']?.title)?.trim();
   let companyRaw = flattenRichText(properties['Company']?.rich_text)?.trim() || null;
@@ -164,7 +259,6 @@ export function normalizeNotionPage(page: any): Lead {
         }
       }
     } else {
-      // Check for patterns like "X is hiring/recruiting for a [Role] role..."
       const match = detailsRaw.match(
         /(?:hiring|recruiting|seeking|looking for)(?:\s+(?:for\s+)?(?:a|an|the))?\s+([^,.]+?)(?:\s+(?:role|position|for|with|in|to|\.|$))/i
       );
@@ -196,28 +290,28 @@ export function normalizeNotionPage(page: any): Lead {
   const postedBy = postedByRaw || null;
   const company = companyRaw || null;
 
-  // 4. Primary status: LinkedIn Status (select)
+  // Primary status: LinkedIn Status (select)
   const linkedInStatusSelect = properties['LinkedIn Status']?.select;
   const linkedInStatus = linkedInStatusSelect?.name?.trim() || 'No status';
 
-  // 5. Message / Clipboard text: LinkedIn DM (rich_text)
+  // Message / Clipboard text: LinkedIn DM (rich_text)
   const linkedInDm = flattenRichText(properties['LinkedIn DM']?.rich_text);
 
-  // 6. LinkedIn profile destination: Primary Contact LinkedIn (url)
+  // LinkedIn profile destination: Primary Contact LinkedIn (url)
   const primaryContactLinkedIn = validateLinkedInUrl(properties['Primary Contact LinkedIn']?.url);
 
-  // 7. Email: Primary Contact Email (email)
+  // Email: Primary Contact Email (email)
   const emailRaw = properties['Primary Contact Email']?.email;
   const primaryContactEmail = typeof emailRaw === 'string' && emailRaw.trim() ? emailRaw.trim() : null;
 
-  // 8. Phone: Phone (phone_number)
+  // Phone: Phone (phone_number)
   const phoneRaw = properties['Phone']?.phone_number;
   const phone = typeof phoneRaw === 'string' && phoneRaw.trim() ? phoneRaw.trim() : null;
 
-  // 9. Score badge: Score (select)
+  // Score badge: Score (select)
   const score = parseScore(properties['Score']?.select);
 
-  // 10. Extended Details Fields
+  // Extended Details Fields
   const location = flattenRichText(properties['Location']?.rich_text)?.trim() || null;
   const engagementType = extractSelect(properties['Engagement Type']);
   const postSummary = flattenRichText(properties['Post Summary']?.rich_text)?.trim() || null;

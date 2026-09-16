@@ -20,7 +20,7 @@ export default function LeadsPage() {
   const [error, setError] = useState<LeadsApiResponse['error'] | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  const fetchLeads = useCallback(async (cursor?: string | null) => {
+  const fetchLeads = useCallback(async (tab: CategoryTabId, cursor?: string | null) => {
     const isInitial = !cursor;
     if (isInitial) {
       setLoading(true);
@@ -30,7 +30,16 @@ export default function LeadsPage() {
     }
 
     try {
-      const url = cursor ? `/api/leads?cursor=${encodeURIComponent(cursor)}` : '/api/leads';
+      const params = new URLSearchParams();
+      if (tab !== 'all') {
+        params.set('vertical', tab);
+      }
+      if (cursor) {
+        params.set('cursor', cursor);
+      }
+
+      const queryString = params.toString() ? `?${params.toString()}` : '';
+      const url = `/api/leads${queryString}`;
       const res = await fetch(url, {
         cache: 'no-store',
       });
@@ -66,12 +75,16 @@ export default function LeadsPage() {
   }, []);
 
   useEffect(() => {
-    fetchLeads();
-  }, [fetchLeads]);
+    fetchLeads(activeTab);
+  }, [activeTab, fetchLeads]);
+
+  const handleTabChange = (tabId: CategoryTabId) => {
+    setActiveTab(tabId);
+  };
 
   const handleLoadMore = () => {
     if (nextCursor && !loadingMore) {
-      fetchLeads(nextCursor);
+      fetchLeads(activeTab, nextCursor);
     }
   };
 
@@ -85,7 +98,7 @@ export default function LeadsPage() {
         {/* Sticky Sub-Header with Category Tabs */}
         <VerticalTabs
           activeTab={activeTab}
-          onSelectTab={setActiveTab}
+          onSelectTab={handleTabChange}
           onShowNotice={setNotice}
         />
 
@@ -94,19 +107,19 @@ export default function LeadsPage() {
           {loading && <LoadingState />}
 
           {!loading && error?.code === 'CONFIG_REQUIRED' && (
-            <ConfigRequiredState onRetry={() => fetchLeads()} />
+            <ConfigRequiredState onRetry={() => fetchLeads(activeTab)} />
           )}
 
           {!loading && error && error.code !== 'CONFIG_REQUIRED' && (
             <ErrorState
               message={error.message}
               details={error.details}
-              onRetry={() => fetchLeads()}
+              onRetry={() => fetchLeads(activeTab)}
             />
           )}
 
           {!loading && !error && leads.length === 0 && (
-            <EmptyState onRetry={() => fetchLeads()} />
+            <EmptyState onRetry={() => fetchLeads(activeTab)} />
           )}
 
           {!loading && !error && leads.length > 0 && (

@@ -1,20 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchLeadsFromNotion, fetchAllLeadsFromNotion } from '@/lib/notion/client';
-import { LeadsApiResponse } from '@/types/lead';
+import { fetchLeadsFromNotion } from '@/lib/notion/client';
+import { LeadsApiResponse, VerticalId } from '@/types/lead';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest): Promise<NextResponse<LeadsApiResponse>> {
   const { searchParams } = new URL(request.url);
   const cursor = searchParams.get('cursor');
-  const fetchAll = searchParams.get('all') === 'true';
+  const verticalParam = searchParams.get('vertical') as 'all' | VerticalId | null;
 
-  let result;
-  if (fetchAll) {
-    result = await fetchAllLeadsFromNotion();
-  } else {
-    result = await fetchLeadsFromNotion({ cursor: cursor || undefined });
-  }
+  const result = await fetchLeadsFromNotion({
+    cursor: cursor || undefined,
+    vertical: verticalParam || 'all',
+  });
 
   const responseHeaders = {
     'Cache-Control': 'private, no-store, no-cache, max-age=0, must-revalidate',

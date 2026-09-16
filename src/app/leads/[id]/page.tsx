@@ -16,9 +16,10 @@ import {
   CalendarIcon,
   FileTextIcon,
   ExternalLinkIcon,
-  SyncIcon,
   CopyIcon,
   CheckIcon,
+  TagIcon,
+  StarIcon,
 } from '@/components/icons';
 import { ErrorState } from '@/components/States';
 
@@ -115,6 +116,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   }
 
   const hasSubtitle = lead.postedBy || lead.company;
+  const isAiVideo = lead.verticalId === 'ai_video';
 
   return (
     <div className="min-h-screen bg-background text-on-surface pb-20">
@@ -127,7 +129,9 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           <ArrowLeftIcon className="w-5 h-5" />
           <span>Back to Leads</span>
         </Link>
-        <span className="text-xs font-semibold uppercase tracking-wider text-secondary bg-surface-container px-2.5 py-1 rounded">
+        <span className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded ${
+          isAiVideo ? 'text-indigo-700 bg-indigo-100' : 'text-primary bg-blue-100/70'
+        }`}>
           {lead.verticalLabel}
         </span>
       </header>
@@ -138,13 +142,20 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
         <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-primary bg-blue-100/70 px-2.5 py-1 rounded">
+              <span className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded ${
+                isAiVideo ? 'text-indigo-700 bg-indigo-100' : 'text-primary bg-blue-100/70'
+              }`}>
                 {lead.verticalLabel}
               </span>
               <StatusBadge status={lead.linkedInStatus} />
               {lead.stage && (
                 <span className="text-xs font-medium text-secondary bg-gray-100 px-2 py-0.5 rounded">
                   Stage: {lead.stage}
+                </span>
+              )}
+              {lead.signalType && (
+                <span className="text-xs font-medium text-indigo-800 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
+                  {lead.signalType}
                 </span>
               )}
             </div>
@@ -182,10 +193,10 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                 <span>{lead.engagementType}</span>
               </div>
             )}
-            {(lead.signalDate || lead.sendDate) && (
+            {(lead.posted || lead.signalDate || lead.sendDate) && (
               <div className="flex items-center gap-2 text-on-surface-variant">
                 <CalendarIcon className="w-4 h-4 text-secondary flex-shrink-0" />
-                <span>Posted: {lead.signalDate || lead.sendDate}</span>
+                <span>Posted: {lead.posted || lead.signalDate || lead.sendDate}</span>
               </div>
             )}
             {lead.sourceType && (
@@ -197,7 +208,50 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </div>
         </section>
 
-        {/* 2. Direct Contact & Links */}
+        {/* 2. Why Signal Apt (AI Video Specific) */}
+        {lead.whySignalApt && (
+          <section className="bg-gradient-to-r from-blue-50/70 to-indigo-50/70 border border-blue-200 rounded-xl p-6 shadow-sm space-y-3">
+            <h2 className="text-base font-bold text-blue-950 flex items-center gap-2">
+              <StarIcon className="w-4 h-4 text-primary fill-current" />
+              Why Signal Apt
+            </h2>
+            <p className="text-sm md:text-base text-blue-900 leading-relaxed font-medium">
+              {lead.whySignalApt}
+            </p>
+          </section>
+        )}
+
+        {/* 3. Signal Snippet (if present) */}
+        {lead.signalSnippet && (
+          <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-secondary flex items-center gap-1.5">
+              <FileTextIcon className="w-3.5 h-3.5" />
+              Signal Snippet
+            </h2>
+            <blockquote className="text-sm italic text-on-surface-variant border-l-2 border-secondary/40 pl-3 py-1 bg-surface-container-low/40 rounded-r">
+              "{lead.signalSnippet}"
+            </blockquote>
+          </section>
+        )}
+
+        {/* 4. Pain Points (if present) */}
+        {lead.painPoints && lead.painPoints.length > 0 && (
+          <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-3">
+            <h2 className="text-base font-bold text-on-surface flex items-center gap-2">
+              <TagIcon className="w-4 h-4 text-primary" />
+              Identified Pain Points
+            </h2>
+            <ul className="list-disc list-inside space-y-1.5 text-sm text-on-surface-variant">
+              {lead.painPoints.map((point, index) => (
+                <li key={index} className="leading-relaxed">
+                  {point}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* 5. Direct Contact & Links */}
         <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-4">
           <h2 className="text-base font-bold text-on-surface">Contact &amp; Profiles</h2>
 
@@ -263,7 +317,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </div>
         </section>
 
-        {/* 3. Post Summary (if present) */}
+        {/* 6. Post Summary (if present) */}
         {lead.postSummary && (
           <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-3">
             <h2 className="text-base font-bold text-on-surface flex items-center gap-2">
@@ -276,7 +330,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </section>
         )}
 
-        {/* 4. Requirements & Expectations (if present) */}
+        {/* 7. Requirements & Expectations (if present) */}
         {lead.requirement && (
           <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-3">
             <h2 className="text-base font-bold text-on-surface flex items-center gap-2">
@@ -289,7 +343,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </section>
         )}
 
-        {/* 5. LinkedIn Direct Message (Outreach Draft) */}
+        {/* 8. LinkedIn Direct Message (Outreach Draft) */}
         <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-on-surface">LinkedIn DM Draft</h2>
@@ -312,7 +366,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </div>
         </section>
 
-        {/* 6. Email Outreach Draft (if present) */}
+        {/* 9. Email Outreach Draft (if present) */}
         {lead.emailBody && (
           <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
@@ -356,13 +410,20 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </section>
         )}
 
-        {/* 7. Verification & Research Notes (if present) */}
-        {lead.notes && (
+        {/* 10. Enrichment & Research Notes (if present) */}
+        {(lead.notes || lead.enrichmentNotes) && (
           <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-3">
             <h2 className="text-base font-bold text-on-surface">Verification &amp; Research Notes</h2>
-            <p className="text-sm text-secondary bg-surface-container-low/30 p-4 rounded-lg border border-outline-variant/30 leading-relaxed whitespace-pre-line">
-              {lead.notes}
-            </p>
+            {lead.enrichmentNotes && (
+              <p className="text-sm text-on-surface bg-surface-container-low/40 p-4 rounded-lg border border-outline-variant/40 leading-relaxed whitespace-pre-line">
+                {lead.enrichmentNotes}
+              </p>
+            )}
+            {lead.notes && (
+              <p className="text-sm text-secondary bg-surface-container-low/30 p-4 rounded-lg border border-outline-variant/30 leading-relaxed whitespace-pre-line">
+                {lead.notes}
+              </p>
+            )}
           </section>
         )}
       </main>

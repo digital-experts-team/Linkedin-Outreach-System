@@ -8,13 +8,7 @@ export interface ScoreInfo {
   tier: ScoreTier;
 }
 
-export type KnownLinkedInStatus =
-  | 'Not started'
-  | 'Draft'
-  | 'Draft Ready'
-  | 'Done'
-  | 'LinkedIn Send'
-  | 'Follow Up';
+export type VerticalId = 'gtm' | 'ai_video';
 
 export interface Lead {
   id: string;
@@ -28,10 +22,10 @@ export interface Lead {
   primaryContactEmail: string | null;
   phone: string | null;
   score: ScoreInfo | null;
-  verticalId: 'gtm';
-  verticalLabel: 'GTM & Sales';
+  verticalId: VerticalId;
+  verticalLabel: string;
 
-  // Extended Details Fields
+  // Extended Details Fields (GTM & AI Video)
   location?: string | null;
   engagementType?: string | null;
   postSummary?: string | null;
@@ -40,6 +34,7 @@ export interface Lead {
   signalDate?: string | null;
   sendDate?: string | null;
   commentDate?: string | null;
+  posted?: string | null;
   sourceType?: string | null;
   sourceLink?: string | null;
   linkedInPostUrl?: string | null;
@@ -51,6 +46,13 @@ export interface Lead {
   emailBody?: string | null;
   emailStatus?: string | null;
   emailPipeline?: string | null;
+
+  // AI Video specific fields
+  whySignalApt?: string | null;
+  signalSnippet?: string | null;
+  signalType?: string | null;
+  enrichmentNotes?: string | null;
+  painPoints?: string[];
 }
 
 export interface LeadsApiResponse {

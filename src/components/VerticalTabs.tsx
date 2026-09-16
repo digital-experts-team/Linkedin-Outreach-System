@@ -12,7 +12,7 @@ interface CategoryTab {
 
 const CATEGORIES: CategoryTab[] = [
   { id: 'all', label: 'All', enabled: true },
-  { id: 'ai_video', label: 'AI Video & Hiring', enabled: false },
+  { id: 'ai_video', label: 'AI Video & Hiring', enabled: true },
   { id: 'gtm', label: 'GTM & Sales', enabled: true },
   { id: 'aeo_geo', label: 'AEO/GEO', enabled: false },
   { id: 'ai_automation', label: 'AI Automation', enabled: false },
