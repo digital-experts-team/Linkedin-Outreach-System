@@ -1,4 +1,5 @@
 import { Lead, ScoreInfo, ScoreTier } from '@/types/lead';
+import { LinkedInPost, PostMediaItem } from '@/types/post';
 
 /**
  * Extracts plain text from Notion rich text array, flattening all fragments
@@ -374,5 +375,84 @@ export function normalizeNotionPage(page: any): Lead {
     emailBody,
     emailStatus,
     emailPipeline,
+  };
+}
+
+/**
+ * Extracts file objects from Notion files property.
+ */
+export function extractFiles(fileProp: any): PostMediaItem[] {
+  if (!fileProp?.files || !Array.isArray(fileProp.files)) {
+    return [];
+  }
+  return fileProp.files
+    .map((fileObj: any) => {
+      const url = fileObj?.file?.url || fileObj?.external?.url || null;
+      if (!url) return null;
+      return {
+        url,
+        name: fileObj?.name || 'attachment',
+        type: fileObj?.type === 'file' || url.match(/\.(jpeg|jpg|png|webp|gif)/i) ? 'image' : 'file',
+        expiryTime: fileObj?.file?.expiry_time,
+      };
+    })
+    .filter(Boolean) as PostMediaItem[];
+}
+
+/**
+ * Normalizes a Notion Content Hub page object into a typed LinkedInPost model.
+ */
+export function normalizeNotionPostPage(page: any): LinkedInPost {
+  const properties = page.properties || {};
+
+  const name = flattenTitle(properties['Name']?.title)?.trim() || 'Untitled Post';
+  const fullCopy =
+    flattenRichText(properties['Full Copy']?.rich_text) ||
+    flattenRichText(properties['Hook']?.rich_text) ||
+    '';
+  const hook = flattenRichText(properties['Hook']?.rich_text)?.trim() || null;
+  const images = extractFiles(properties['Image']);
+  const status = extractSelect(properties['Status']) || 'Draft';
+  const scheduledDate = extractDate(properties['Scheduled Date']);
+  const postedDate = extractDate(properties['Posted Date']);
+  const weekOf = extractDate(properties['Week Of']);
+  const format = extractSelect(properties['Format']);
+  const vertical = extractSelect(properties['Vertical']);
+  const angleType = extractSelect(properties['Angle Type']);
+  const ctaKeyword = flattenRichText(properties['CTA Keyword']?.rich_text)?.trim() || null;
+  const trigger = extractSelect(properties['Trigger']);
+  const postUrl = properties['Post URL']?.url?.trim() || null;
+  const commentsCount = typeof properties['Comments']?.number === 'number' ? properties['Comments'].number : null;
+  const dmsSent = typeof properties['DMs Sent']?.number === 'number' ? properties['DMs Sent'].number : null;
+  const callsBooked = typeof properties['Calls Booked']?.number === 'number' ? properties['Calls Booked'].number : null;
+
+  const authorName = 'Alex Vance';
+  const authorHeadline = 'Founder & CEO at Outreach Pilot';
+  const authorAvatarUrl =
+    'https://lh3.googleusercontent.com/aida/AEtjO1V2nf-K_WKfaT7qPBusA7FHuAKuZQ-fLwbizboCo9YYDgSk8M6Jr77f-r_NMGZiSmuIJAMDbObpJuKjdyiT-OyateOU0udT9fSRqVhQPnyt2PCBJMneXD0pPot1T_k79tUqtiqbFMMZw_lQ1X65hK9bOOBm5If4VzsnRXdHvzquX4E4w3dwHHWfV-TBLbQC1VJSnol8pImm5-lsLaiekSQiz4fRNsKef8fbZxa2-hKNBaTR1OCD5ikvN-Q';
+
+  return {
+    id: page.id,
+    notionUrl: page.url || `https://www.notion.so/${page.id.replace(/-/g, '')}`,
+    name,
+    fullCopy,
+    hook,
+    images,
+    status,
+    scheduledDate,
+    postedDate,
+    weekOf,
+    format,
+    vertical,
+    angleType,
+    ctaKeyword,
+    trigger,
+    postUrl,
+    commentsCount,
+    dmsSent,
+    callsBooked,
+    authorName,
+    authorHeadline,
+    authorAvatarUrl,
   };
 }

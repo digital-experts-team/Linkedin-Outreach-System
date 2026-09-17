@@ -1,5 +1,6 @@
-import { normalizeNotionPage, normalizeAiVideoNotionPage } from './mapper';
+import { normalizeNotionPage, normalizeAiVideoNotionPage, normalizeNotionPostPage } from './mapper';
 import { Lead, VerticalId } from '@/types/lead';
+import { LinkedInPost } from '@/types/post';
 
 export interface FetchLeadsOptions {
   cursor?: string | null;
@@ -408,4 +409,117 @@ export async function updateLeadStatusInNotion(
     };
   }
 }
+
+const DEFAULT_POSTS_DATABASE_ID = 'a724a9edba084af0b407862ca6dbff41';
+
+export interface FetchPostsOptions {
+  cursor?: string | null;
+  pageSize?: number;
+  status?: string;
+}
+
+export interface FetchPostsResult {
+  posts: LinkedInPost[];
+  hasMore: boolean;
+  nextCursor: string | null;
+  counts?: {
+    all: number;
+    scheduled: number;
+    drafts: number;
+    published: number;
+  };
+  error?: {
+    code: 'CONFIG_REQUIRED' | 'UNAUTHORIZED' | 'NOT_FOUND_OR_FORBIDDEN' | 'RATE_LIMITED' | 'FETCH_ERROR';
+    message: string;
+    details?: string;
+  };
+}
+
+/**
+ * Fetches authored LinkedIn posts from the Notion Content Hub database.
+ */
+export async function fetchLinkedInPosts(options: FetchPostsOptions = {}): Promise<FetchPostsResult> {
+  const token = process.env.NOTION_TOKEN?.trim();
+  const databaseId = process.env.NOTION_POSTS_DATABASE_ID?.trim() || DEFAULT_POSTS_DATABASE_ID;
+
+  if (!token) {
+    return {
+      posts: [],
+      hasMore: false,
+      nextCursor: null,
+      error: {
+        code: 'CONFIG_REQUIRED',
+        message: 'Notion integration token is not configured.',
+      },
+    };
+  }
+
+  const requestBody: Record<string, any> = {
+    page_size: options.pageSize || 100,
+  };
+  if (options.cursor) {
+    requestBody.start_cursor = options.cursor;
+  }
+
+  try {
+    const databaseUrl = `https://api.notion.com/v1/databases/${databaseId}/query`;
+    const response = await queryNotionWithRetry(databaseUrl, token, requestBody, '2022-06-28');
+
+    if (!response.ok) {
+      const errorJson = await response.json().catch(() => ({}));
+      return {
+        posts: [],
+        hasMore: false,
+        nextCursor: null,
+        error: {
+          code: response.status === 401 ? 'UNAUTHORIZED' : 'FETCH_ERROR',
+          message: errorJson.message || `Notion API returned HTTP ${response.status}`,
+        },
+      };
+    }
+
+    const data = await response.json();
+    const results = Array.isArray(data.results) ? data.results : [];
+    const allPosts = results.map((page: any) => normalizeNotionPostPage(page));
+
+    // Calculate counts for filters
+    const counts = {
+      all: allPosts.length,
+      scheduled: allPosts.filter((p: LinkedInPost) => (p.status || '').toLowerCase().includes('scheduled')).length,
+      drafts: allPosts.filter((p: LinkedInPost) => (p.status || '').toLowerCase().includes('draft') || (p.status || '').toLowerCase().includes('idea')).length,
+      published: allPosts.filter((p: LinkedInPost) => (p.status || '').toLowerCase().includes('published') || (p.status || '').toLowerCase().includes('done')).length,
+    };
+
+    // Filter if requested
+    let filteredPosts = allPosts;
+    if (options.status && options.status !== 'All') {
+      const target = options.status.toLowerCase();
+      filteredPosts = allPosts.filter((p: LinkedInPost) => {
+        const s = (p.status || '').toLowerCase();
+        if (target === 'scheduled') return s.includes('scheduled');
+        if (target === 'drafts' || target === 'draft') return s.includes('draft') || s.includes('idea');
+        if (target === 'published') return s.includes('published') || s.includes('done');
+        return s === target;
+      });
+    }
+
+    return {
+      posts: filteredPosts,
+      hasMore: Boolean(data.has_more),
+      nextCursor: data.next_cursor || null,
+      counts,
+    };
+  } catch (error: any) {
+    return {
+      posts: [],
+      hasMore: false,
+      nextCursor: null,
+      error: {
+        code: 'FETCH_ERROR',
+        message: error?.message || 'Failed to fetch LinkedIn posts from Notion Content Hub',
+      },
+    };
+  }
+}
+
 
