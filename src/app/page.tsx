@@ -118,7 +118,7 @@ export default function LeadsPage() {
       <AppHeader onShowNotice={setNotice} />
 
       {/* 2. Main Content Area with padding offsets */}
-      <div className="pt-14 pb-24 flex-1 flex flex-col">
+      <div className="pt-14 pb-28 sm:pb-24 flex-1 flex flex-col">
         {/* Sticky Filter & Sort Row */}
         <VerticalTabs
           activeTab={activeTab}
@@ -129,7 +129,7 @@ export default function LeadsPage() {
         />
 
         {/* Lead List Canvas */}
-        <main className="flex-1 max-w-5xl w-full mx-auto px-4 md:px-8 py-5 space-y-4">
+        <main className="flex-1 max-w-5xl w-full mx-auto px-3.5 sm:px-6 md:px-8 py-4 sm:py-5 space-y-3.5 sm:space-y-4">
           {loading && <LoadingState />}
 
           {!loading && error?.code === 'CONFIG_REQUIRED' && (
@@ -150,7 +150,7 @@ export default function LeadsPage() {
 
           {!loading && !error && displayedLeads.length > 0 && (
             <>
-              <div className="space-y-4">
+              <div className="space-y-3.5 sm:space-y-4">
                 {displayedLeads.map((lead) => (
                   <LeadCard key={lead.id} lead={lead} />
                 ))}
@@ -161,7 +161,7 @@ export default function LeadsPage() {
                   <button
                     onClick={handleLoadMore}
                     disabled={loadingMore}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-surface-container hover:bg-surface-container-high text-on-surface font-semibold text-sm rounded-lg transition-colors border border-outline-variant disabled:opacity-60 shadow-sm"
+                    className="flex items-center gap-2 px-6 py-3 bg-white hover:bg-surface-container text-on-surface font-semibold text-sm rounded-xl transition-all border border-outline-variant/80 disabled:opacity-60 shadow-xs tap-bounce"
                   >
                     {loadingMore ? (
                       <>

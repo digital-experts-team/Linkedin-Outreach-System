@@ -38,7 +38,7 @@ export function LeadCard({ lead }: LeadCardProps) {
   return (
     <article
       onClick={handleCardClick}
-      className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm flex flex-col gap-3.5 transition-all hover:shadow-md hover:border-primary/40 cursor-pointer group"
+      className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3.5 transition-all duration-150 hover:shadow-md hover:border-primary/40 active:scale-[0.99] cursor-pointer group select-none"
       role="link"
       tabIndex={0}
       onKeyDown={(e) => {

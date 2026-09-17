@@ -116,7 +116,7 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
       <button
         disabled
         aria-disabled="true"
-        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 border-2 border-gray-200 text-gray-400 font-semibold text-sm rounded-lg cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 bg-gray-100 border-2 border-gray-200 text-gray-400 font-semibold text-sm rounded-xl cursor-not-allowed"
       >
         <LinkedInIcon className="w-4 h-4" />
         <span>LinkedIn connect (No URL)</span>
@@ -130,10 +130,10 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
       <div className="flex flex-col items-stretch w-full">
         <button
           onClick={handleOnlyCopy}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all border-2 ${
+          className={`w-full flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-xl text-sm font-semibold transition-all border-2 tap-bounce ${
             copied
               ? 'border-green-600 bg-green-50 text-green-700'
-              : 'border-primary bg-white text-primary hover:bg-blue-50/50 active:scale-[0.99]'
+              : 'border-primary bg-white text-primary hover:bg-blue-50/70 active:scale-[0.98]'
           }`}
           title="Profile URL missing. Click to copy message."
         >
@@ -160,7 +160,7 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
         href={linkedInUrl!}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border-2 border-primary text-primary hover:bg-blue-50/50 font-semibold text-sm rounded-lg active:scale-[0.99] transition-all shadow-xs"
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 bg-white border-2 border-primary text-primary hover:bg-blue-50/70 font-semibold text-sm rounded-xl active:scale-[0.98] transition-all shadow-xs tap-bounce"
       >
         <LinkedInIcon className="w-4 h-4 text-primary" />
         <span>LinkedIn connect</span>
@@ -173,10 +173,10 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
       <div className="flex flex-col items-stretch gap-2 w-full">
         <button
           onClick={handleCombinedAction}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all border-2 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 shadow-xs ${
+          className={`w-full flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-xl text-sm font-semibold transition-all border-2 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 shadow-xs tap-bounce ${
             copied
               ? 'border-green-600 bg-green-50 text-green-700'
-              : 'border-primary bg-white text-primary hover:bg-blue-50/60'
+              : 'border-primary bg-white text-primary hover:bg-blue-50/70'
           }`}
           aria-label="Copy message draft and connect on LinkedIn"
         >

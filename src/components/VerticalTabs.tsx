@@ -107,7 +107,7 @@ export function VerticalTabs({
   };
 
   return (
-    <div className="sticky top-14 z-40 bg-surface-container-lowest shadow-sm border-b border-outline-variant">
+    <div className="sticky top-14 z-30 bg-white/90 backdrop-blur-md shadow-xs border-b border-outline-variant/60">
       <div
         className="flex items-center gap-2 overflow-x-auto hide-scrollbar tab-fade-right px-4 md:px-8 py-2.5"
         aria-label="Filter & Sort"
@@ -119,7 +119,7 @@ export function VerticalTabs({
             onClick={() => setIsSortOpen((prev) => !prev)}
             aria-expanded={isSortOpen}
             aria-haspopup="listbox"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all border border-primary text-primary bg-blue-50/70 shadow-xs hover:bg-blue-100/70 focus:outline-none focus:ring-2 focus:ring-primary select-none"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all border border-primary text-primary bg-blue-50/80 shadow-xs hover:bg-blue-100/80 focus:outline-none focus:ring-2 focus:ring-primary select-none tap-bounce"
             title="Sort leads"
           >
             {sortBy === 'date' ? (
@@ -145,7 +145,7 @@ export function VerticalTabs({
             <div
               role="listbox"
               aria-label="Sort options"
-              className="absolute left-0 top-full mt-1.5 z-50 min-w-[210px] bg-white rounded-xl shadow-xl border border-outline-variant/80 p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-150"
+              className="absolute left-0 top-full mt-2 z-50 min-w-[210px] bg-white rounded-2xl shadow-xl border border-outline-variant/80 p-1.5 space-y-1 animate-fade-in"
             >
               <div className="px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-secondary/70 border-b border-outline-variant/40 mb-1">
                 Sort Leads By
@@ -157,7 +157,7 @@ export function VerticalTabs({
                 role="option"
                 aria-selected={sortBy === 'date'}
                 onClick={() => handleSortSelect('date')}
-                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-colors text-left ${
+                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-medium transition-colors text-left tap-bounce ${
                   sortBy === 'date'
                     ? 'bg-blue-50 text-primary font-semibold'
                     : 'text-on-surface hover:bg-gray-50'
@@ -181,7 +181,7 @@ export function VerticalTabs({
                 role="option"
                 aria-selected={sortBy === 'score'}
                 onClick={() => handleSortSelect('score')}
-                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-colors text-left ${
+                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-medium transition-colors text-left tap-bounce ${
                   sortBy === 'score'
                     ? 'bg-blue-50 text-primary font-semibold'
                     : 'text-on-surface hover:bg-gray-50'
@@ -215,9 +215,9 @@ export function VerticalTabs({
               <button
                 key={cat.id}
                 onClick={() => handleTabClick(cat)}
-                className={`flex-none inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-primary ${
+                className={`flex-none inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-primary tap-bounce ${
                   isActive
-                    ? 'border border-primary text-primary bg-blue-50/70 shadow-xs font-bold'
+                    ? 'border border-primary text-primary bg-blue-50/80 shadow-xs font-bold'
                     : 'border border-outline-variant/80 bg-white text-secondary hover:text-on-surface hover:border-outline'
                 }`}
                 aria-current={isActive ? 'page' : undefined}
@@ -250,4 +250,5 @@ export function VerticalTabs({
     </div>
   );
 }
+
 

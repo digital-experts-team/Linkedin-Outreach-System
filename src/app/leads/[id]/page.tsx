@@ -119,17 +119,17 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   const isAiVideo = lead.verticalId === 'ai_video';
 
   return (
-    <div className="min-h-screen bg-background text-on-surface pb-20">
+    <div className="min-h-screen bg-background text-on-surface pb-24">
       {/* Top Navigation Bar */}
-      <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-surface-container-lowest border-b border-outline-variant px-4 md:px-8 flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-white/90 backdrop-blur-md border-b border-outline-variant/70 px-4 md:px-8 flex items-center justify-between shadow-xs">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-primary font-semibold text-sm hover:underline p-1.5 -ml-1.5 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+          className="inline-flex items-center gap-2 text-primary font-semibold text-sm hover:underline p-1.5 -ml-1.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary tap-bounce"
         >
           <ArrowLeftIcon className="w-5 h-5" />
           <span>Back to Leads</span>
         </Link>
-        <span className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded ${
+        <span className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full ${
           isAiVideo ? 'text-indigo-700 bg-indigo-100' : 'text-primary bg-blue-100/70'
         }`}>
           {lead.verticalLabel}
@@ -137,9 +137,9 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
       </header>
 
       {/* Main Content Area */}
-      <main className="pt-24 max-w-4xl mx-auto px-4 md:px-8 space-y-6">
+      <main className="pt-20 max-w-4xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-4 sm:space-y-6">
         {/* 1. Header Overview Card */}
-        <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-4">
+        <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <span className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded ${
@@ -210,12 +210,12 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
         {/* 2. Why Signal Apt (AI Video Specific) */}
         {lead.whySignalApt && (
-          <section className="bg-gradient-to-r from-blue-50/70 to-indigo-50/70 border border-blue-200 rounded-xl p-6 shadow-sm space-y-3">
+          <section className="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 border border-blue-200/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-2.5">
             <h2 className="text-base font-bold text-blue-950 flex items-center gap-2">
               <StarIcon className="w-4 h-4 text-primary fill-current" />
               Why Signal Apt
             </h2>
-            <p className="text-sm md:text-base text-blue-900 leading-relaxed font-medium">
+            <p className="text-sm md:text-base text-blue-950 leading-relaxed font-medium">
               {lead.whySignalApt}
             </p>
           </section>
@@ -223,12 +223,12 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
         {/* 3. Signal Snippet (if present) */}
         {lead.signalSnippet && (
-          <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-2">
+          <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-2">
             <h2 className="text-xs font-bold uppercase tracking-wider text-secondary flex items-center gap-1.5">
               <FileTextIcon className="w-3.5 h-3.5" />
               Signal Snippet
             </h2>
-            <blockquote className="text-sm italic text-on-surface-variant border-l-2 border-secondary/40 pl-3 py-1 bg-surface-container-low/40 rounded-r">
+            <blockquote className="text-sm md:text-[15px] font-medium text-on-surface border-l-2 border-primary/50 pl-3.5 py-1.5 bg-surface-container-low/60 rounded-r-lg">
               "{lead.signalSnippet}"
             </blockquote>
           </section>
@@ -236,7 +236,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
         {/* 4. Pain Points (if present) */}
         {lead.painPoints && lead.painPoints.length > 0 && (
-          <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-3">
+          <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-3">
             <h2 className="text-base font-bold text-on-surface flex items-center gap-2">
               <TagIcon className="w-4 h-4 text-primary" />
               Identified Pain Points
@@ -252,14 +252,14 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
         )}
 
         {/* 5. Direct Contact & Links */}
-        <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-4">
+        <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
           <h2 className="text-base font-bold text-on-surface">Contact &amp; Profiles</h2>
 
-          <div className="flex flex-wrap items-center gap-4 text-sm">
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 text-sm">
             {lead.primaryContactEmail && (
               <a
                 href={`mailto:${lead.primaryContactEmail}`}
-                className="inline-flex items-center gap-2 px-3 py-2 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-lg transition-colors border border-outline-variant/60"
+                className="inline-flex items-center gap-2 px-3.5 py-2.5 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-xl transition-colors border border-outline-variant/60 tap-bounce"
               >
                 <MailIcon className="w-4 h-4 text-primary" />
                 <span className="font-medium">{lead.primaryContactEmail}</span>
@@ -269,7 +269,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
             {lead.phone && (
               <a
                 href={`tel:${lead.phone}`}
-                className="inline-flex items-center gap-2 px-3 py-2 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-lg transition-colors border border-outline-variant/60"
+                className="inline-flex items-center gap-2 px-3.5 py-2.5 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-xl transition-colors border border-outline-variant/60 tap-bounce"
               >
                 <PhoneIcon className="w-4 h-4 text-primary" />
                 <span className="font-medium">{lead.phone}</span>
@@ -281,7 +281,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                 href={lead.primaryContactLinkedIn}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3 py-2 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-lg transition-colors border border-outline-variant/60"
+                className="inline-flex items-center gap-2 px-3.5 py-2.5 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-xl transition-colors border border-outline-variant/60 tap-bounce"
               >
                 <LinkIcon className="w-4 h-4 text-primary" />
                 <span className="font-medium">Primary Contact LinkedIn</span>
@@ -294,7 +294,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                 href={lead.linkedInPostUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3 py-2 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-lg transition-colors border border-outline-variant/60"
+                className="inline-flex items-center gap-2 px-3.5 py-2.5 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-xl transition-colors border border-outline-variant/60 tap-bounce"
               >
                 <LinkIcon className="w-4 h-4 text-secondary" />
                 <span className="font-medium">Original Post Link</span>
@@ -307,7 +307,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                 href={lead.sourceLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3 py-2 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-lg transition-colors border border-outline-variant/60"
+                className="inline-flex items-center gap-2 px-3.5 py-2.5 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-xl transition-colors border border-outline-variant/60 tap-bounce"
               >
                 <LinkIcon className="w-4 h-4 text-secondary" />
                 <span className="font-medium">Source Listing</span>
@@ -319,12 +319,12 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
         {/* 6. Post Summary (if present) */}
         {lead.postSummary && (
-          <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-3">
+          <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-3">
             <h2 className="text-base font-bold text-on-surface flex items-center gap-2">
               <FileTextIcon className="w-4 h-4 text-primary" />
               Post Summary
             </h2>
-            <p className="text-sm md:text-base text-on-surface-variant leading-relaxed bg-surface-container-low/40 p-4 rounded-lg border border-outline-variant/40">
+            <p className="text-sm md:text-base text-on-surface leading-relaxed bg-surface-container-low/50 p-4 rounded-xl border border-outline-variant/40 font-normal">
               {lead.postSummary}
             </p>
           </section>
@@ -332,19 +332,19 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
         {/* 7. Requirements & Expectations (if present) */}
         {lead.requirement && (
-          <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-3">
+          <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-3">
             <h2 className="text-base font-bold text-on-surface flex items-center gap-2">
               <BriefcaseIcon className="w-4 h-4 text-primary" />
               Role Requirements &amp; Scope
             </h2>
-            <div className="text-sm md:text-base text-on-surface-variant leading-relaxed whitespace-pre-line bg-surface-container-low/40 p-4 rounded-lg border border-outline-variant/40">
+            <div className="text-sm md:text-base text-on-surface leading-relaxed whitespace-pre-line bg-surface-container-low/50 p-4 rounded-xl border border-outline-variant/40 font-normal">
               {lead.requirement}
             </div>
           </section>
         )}
 
         {/* 8. LinkedIn Direct Message (Outreach Draft) */}
-        <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-4">
+        <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-on-surface">LinkedIn DM Draft</h2>
             <span className="text-xs font-semibold text-secondary">
@@ -352,8 +352,8 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
             </span>
           </div>
 
-          <div className="border-l-4 border-primary pl-4 py-3 bg-surface-container-low/60 rounded-r-lg">
-            <p className="text-sm md:text-base text-on-surface whitespace-pre-line italic leading-relaxed">
+          <div className="border-l-4 border-primary pl-4 py-3 bg-surface-container-low/70 rounded-r-xl">
+            <p className="text-sm md:text-base text-on-surface whitespace-pre-line font-medium leading-relaxed">
               {lead.linkedInDm || 'No LinkedIn message draft currently generated.'}
             </p>
           </div>
@@ -368,7 +368,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
         {/* 9. Email Outreach Draft (if present) */}
         {lead.emailBody && (
-          <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-4">
+          <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-on-surface">Email Outreach Draft</h2>
               {lead.emailStatus && (
@@ -379,20 +379,20 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
             </div>
 
             {lead.emailSubject && (
-              <div className="text-sm font-semibold text-on-surface bg-surface-container-low p-3 rounded-lg border border-outline-variant/50">
+              <div className="text-sm font-semibold text-on-surface bg-surface-container-low p-3.5 rounded-xl border border-outline-variant/50">
                 <span className="text-secondary font-normal">Subject: </span>
                 {lead.emailSubject}
               </div>
             )}
 
-            <div className="p-4 bg-surface-container-low/40 rounded-lg border border-outline-variant/40 text-sm whitespace-pre-line leading-relaxed text-on-surface-variant">
+            <div className="p-4 bg-surface-container-low/50 rounded-xl border border-outline-variant/40 text-sm whitespace-pre-line leading-relaxed text-on-surface">
               {lead.emailBody}
             </div>
 
             <div className="flex justify-end pt-2">
               <button
                 onClick={handleCopyEmailDraft}
-                className="flex items-center gap-2 px-4 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface text-sm font-semibold rounded-lg transition-colors border border-outline-variant"
+                className="flex items-center gap-2 px-4 py-2.5 bg-surface-container hover:bg-surface-container-high text-on-surface text-sm font-semibold rounded-xl transition-all border border-outline-variant tap-bounce shadow-xs"
               >
                 {copiedEmail ? (
                   <>
@@ -412,15 +412,15 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
         {/* 10. Enrichment & Research Notes (if present) */}
         {(lead.notes || lead.enrichmentNotes) && (
-          <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-3">
+          <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-3">
             <h2 className="text-base font-bold text-on-surface">Verification &amp; Research Notes</h2>
             {lead.enrichmentNotes && (
-              <p className="text-sm text-on-surface bg-surface-container-low/40 p-4 rounded-lg border border-outline-variant/40 leading-relaxed whitespace-pre-line">
+              <p className="text-sm text-on-surface bg-surface-container-low/50 p-4 rounded-xl border border-outline-variant/40 leading-relaxed whitespace-pre-line">
                 {lead.enrichmentNotes}
               </p>
             )}
             {lead.notes && (
-              <p className="text-sm text-secondary bg-surface-container-low/30 p-4 rounded-lg border border-outline-variant/30 leading-relaxed whitespace-pre-line">
+              <p className="text-sm text-secondary bg-surface-container-low/40 p-4 rounded-xl border border-outline-variant/30 leading-relaxed whitespace-pre-line">
                 {lead.notes}
               </p>
             )}
