@@ -19,7 +19,7 @@ function getLeadTimestamp(lead: Lead): number {
 
 export default function LeadsPage() {
   const [activeTab, setActiveTab] = useState<CategoryTabId>('ai_video');
-  const [sortBy, setSortBy] = useState<SortOption>('score');
+  const [sortBy, setSortBy] = useState<SortOption>('date');
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);

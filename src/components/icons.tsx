@@ -282,3 +282,12 @@ export function ArrowDownIcon({ className = 'w-3.5 h-3.5' }: { className?: strin
     </svg>
   );
 }
+
+export function ChevronDownIcon({ className = 'w-3.5 h-3.5' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
+}
+
