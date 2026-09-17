@@ -567,11 +567,71 @@ export function createRichTextChunks(text: string): Array<{ type: 'text'; text: 
 }
 
 /**
- * Updates a LinkedIn post in the Notion Content Hub database (e.g. edited copy or status).
+ * Fetches a single LinkedIn post by its Notion page ID.
+ */
+export async function fetchLinkedInPostByIdFromNotion(pageId: string): Promise<{ post?: LinkedInPost; error?: any }> {
+  const token = process.env.NOTION_TOKEN?.trim();
+
+  if (!token) {
+    return {
+      error: {
+        code: 'CONFIG_REQUIRED',
+        message: 'Notion integration token is not configured.',
+      },
+    };
+  }
+
+  try {
+    const formattedId = pageId.replace(/-/g, '');
+    const pageUrl = `https://api.notion.com/v1/pages/${formattedId}`;
+    const response = await fetch(pageUrl, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Notion-Version': '2022-06-28',
+      },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      const errorJson = await response.json().catch(() => ({}));
+      return {
+        error: {
+          code: response.status === 404 ? 'NOT_FOUND_OR_FORBIDDEN' : 'FETCH_ERROR',
+          message: errorJson.message || `Notion API returned HTTP ${response.status}`,
+        },
+      };
+    }
+
+    const page = await response.json();
+    const post = normalizeNotionPostPage(page);
+
+    return {
+      post,
+    };
+  } catch (error: any) {
+    return {
+      error: {
+        code: 'FETCH_ERROR',
+        message: 'Failed to load post details from Notion.',
+        details: error?.message || String(error),
+      },
+    };
+  }
+}
+
+/**
+ * Updates a LinkedIn post in the Notion Content Hub database (e.g. edited copy, scheduled date, or status).
  */
 export async function updateLinkedInPostInNotion(
   pageId: string,
-  updates: { fullCopy?: string; status?: string }
+  updates: {
+    fullCopy?: string;
+    status?: string;
+    scheduledDate?: string | null;
+    name?: string;
+    vertical?: string;
+  }
 ): Promise<{ success: boolean; post?: LinkedInPost; error?: any }> {
   const token = process.env.NOTION_TOKEN?.trim();
 
@@ -597,10 +657,45 @@ export async function updateLinkedInPostInNotion(
       };
     }
 
-    if (updates.status) {
+    if (updates.status !== undefined && updates.status) {
       propertiesToUpdate['Status'] = {
         select: {
           name: updates.status,
+        },
+      };
+    }
+
+    if (updates.scheduledDate !== undefined) {
+      if (updates.scheduledDate) {
+        propertiesToUpdate['Scheduled Date'] = {
+          date: {
+            start: updates.scheduledDate,
+          },
+        };
+      } else {
+        propertiesToUpdate['Scheduled Date'] = {
+          date: null,
+        };
+      }
+    }
+
+    if (updates.name !== undefined && updates.name) {
+      propertiesToUpdate['Name'] = {
+        title: [
+          {
+            type: 'text',
+            text: {
+              content: updates.name,
+            },
+          },
+        ],
+      };
+    }
+
+    if (updates.vertical !== undefined && updates.vertical) {
+      propertiesToUpdate['Vertical'] = {
+        select: {
+          name: updates.vertical,
         },
       };
     }

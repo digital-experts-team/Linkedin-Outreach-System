@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { LinkedInPost } from '@/types/post';
 import {
   CopyIcon,
@@ -371,20 +372,14 @@ export function LinkedInPostCard({ post, onShowNotice, onPostUpdated }: LinkedIn
           </div>
 
           <div className="flex items-center gap-2">
-            {!isEditing && (
-              <button
-                type="button"
-                onClick={() => {
-                  setCurrentText(post.fullCopy || '');
-                  setIsEditing(true);
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition-all tap-bounce cursor-pointer"
-                title="Edit text copy and update Notion"
-              >
-                <EditIcon className="w-3.5 h-3.5 text-slate-500" />
-                <span>Edit Post</span>
-              </button>
-            )}
+            <Link
+              href={`/posts/${post.id}`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition-all tap-bounce cursor-pointer"
+              title="Open full edit page to change date, status, and copy in Notion"
+            >
+              <EditIcon className="w-3.5 h-3.5 text-slate-500" />
+              <span>Edit Post</span>
+            </Link>
 
             {hasImages && (
               <button
