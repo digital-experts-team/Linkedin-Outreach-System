@@ -9,19 +9,37 @@ import { ContactLinks } from './ContactLinks';
 import { LinkedInAction } from './LinkedInAction';
 import { CalendarIcon } from './icons';
 
+const MONTH_NAMES = [
+  'JANUARY',
+  'FEBRUARY',
+  'MARCH',
+  'APRIL',
+  'MAY',
+  'JUNE',
+  'JULY',
+  'AUGUST',
+  'SEPTEMBER',
+  'OCTOBER',
+  'NOVEMBER',
+  'DECEMBER',
+];
+
 function formatCardDate(dateStr?: string | null): string | null {
   if (!dateStr) return null;
   const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (match) {
     const [, , mm, dd] = match;
-    return `${dd}/${mm}`;
+    const monthIndex = parseInt(mm, 10) - 1;
+    const monthName = MONTH_NAMES[monthIndex] || mm;
+    const day = String(parseInt(dd, 10)).padStart(2, '0');
+    return `${day}/${monthName}`;
   }
   const parsed = Date.parse(dateStr);
   if (!isNaN(parsed)) {
     const d = new Date(parsed);
-    const dd = String(d.getDate()).padStart(2, '0');
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    return `${dd}/${mm}`;
+    const day = String(d.getDate()).padStart(2, '0');
+    const monthName = MONTH_NAMES[d.getMonth()] || String(d.getMonth() + 1);
+    return `${day}/${monthName}`;
   }
   return dateStr;
 }
