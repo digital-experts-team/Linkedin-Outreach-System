@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import {
-  PlayOutlineIcon,
+  LinkedInIcon,
   CheckIcon,
   CopyIcon,
   ExternalLinkIcon,
@@ -118,8 +118,8 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
         aria-disabled="true"
         className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 border-2 border-gray-200 text-gray-400 font-semibold text-sm rounded-lg cursor-not-allowed"
       >
-        <PlayOutlineIcon className="w-4 h-4" />
-        <span>▷ LinkedIn connect (No URL)</span>
+        <LinkedInIcon className="w-4 h-4" />
+        <span>LinkedIn connect (No URL)</span>
       </button>
     );
   }
@@ -162,8 +162,8 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
         rel="noopener noreferrer"
         className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border-2 border-primary text-primary hover:bg-blue-50/50 font-semibold text-sm rounded-lg active:scale-[0.99] transition-all shadow-xs"
       >
-        <PlayOutlineIcon className="w-4 h-4" />
-        <span>▷ LinkedIn connect</span>
+        <LinkedInIcon className="w-4 h-4 text-primary" />
+        <span>LinkedIn connect</span>
       </a>
     );
   }
@@ -178,7 +178,7 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
               ? 'border-green-600 bg-green-50 text-green-700'
               : 'border-primary bg-white text-primary hover:bg-blue-50/60'
           }`}
-          aria-label="Copy AI pitch draft and connect on LinkedIn"
+          aria-label="Copy message draft and connect on LinkedIn"
         >
           {copied ? (
             <>
@@ -187,8 +187,8 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
             </>
           ) : (
             <>
-              <PlayOutlineIcon className="w-4 h-4 text-primary" />
-              <span>▷ LinkedIn connect</span>
+              <LinkedInIcon className="w-4 h-4 text-primary" />
+              <span>LinkedIn connect</span>
             </>
           )}
         </button>

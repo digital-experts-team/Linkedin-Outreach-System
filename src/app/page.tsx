@@ -3,16 +3,23 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Lead, LeadsApiResponse } from '@/types/lead';
 import { AppHeader } from '@/components/AppHeader';
-import { VerticalTabs, CategoryTabId } from '@/components/VerticalTabs';
+import { VerticalTabs, CategoryTabId, SortOption } from '@/components/VerticalTabs';
 import { LeadCard } from '@/components/LeadCard';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { LoadingState, EmptyState, ConfigRequiredState, ErrorState } from '@/components/States';
 import { Toast } from '@/components/Toast';
 import { SyncIcon } from '@/components/icons';
 
+function getLeadTimestamp(lead: Lead): number {
+  const dateStr = lead.posted || lead.signalDate || lead.sendDate || lead.commentDate;
+  if (!dateStr) return 0;
+  const parsed = Date.parse(dateStr);
+  return isNaN(parsed) ? 0 : parsed;
+}
+
 export default function LeadsPage() {
-  const [activeTab, setActiveTab] = useState<CategoryTabId>('all');
-  const [isScoreSorted, setIsScoreSorted] = useState<boolean>(true);
+  const [activeTab, setActiveTab] = useState<CategoryTabId>('ai_video');
+  const [sortBy, setSortBy] = useState<SortOption>('score');
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
@@ -32,9 +39,7 @@ export default function LeadsPage() {
 
     try {
       const params = new URLSearchParams();
-      if (tab !== 'all') {
-        params.set('vertical', tab);
-      }
+      params.set('vertical', tab);
       if (cursor) {
         params.set('cursor', cursor);
       }
@@ -83,10 +88,6 @@ export default function LeadsPage() {
     setActiveTab(tabId);
   };
 
-  const handleToggleScoreSort = () => {
-    setIsScoreSorted((prev) => !prev);
-  };
-
   const handleLoadMore = () => {
     if (nextCursor && !loadingMore) {
       fetchLeads(activeTab, nextCursor);
@@ -95,15 +96,21 @@ export default function LeadsPage() {
 
   // Sort leads based on active sort pill
   const displayedLeads = useMemo(() => {
-    if (!isScoreSorted) {
-      return leads;
-    }
     return [...leads].sort((a, b) => {
+      if (sortBy === 'date') {
+        const dateA = getLeadTimestamp(a);
+        const dateB = getLeadTimestamp(b);
+        if (dateB !== dateA) {
+          return dateB - dateA;
+        }
+      }
+
+      // Sort by score (default or tiebreaker)
       const scoreA = a.score?.isNumeric ? parseFloat(a.score.raw) : a.score?.isHold ? 0 : -1;
       const scoreB = b.score?.isNumeric ? parseFloat(b.score.raw) : b.score?.isHold ? 0 : -1;
       return scoreB - scoreA;
     });
-  }, [leads, isScoreSorted]);
+  }, [leads, sortBy]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-on-surface">
@@ -116,8 +123,8 @@ export default function LeadsPage() {
         <VerticalTabs
           activeTab={activeTab}
           onSelectTab={handleTabChange}
-          isScoreSorted={isScoreSorted}
-          onToggleScoreSort={handleToggleScoreSort}
+          sortBy={sortBy}
+          onSelectSort={setSortBy}
           onShowNotice={setNotice}
         />
 
