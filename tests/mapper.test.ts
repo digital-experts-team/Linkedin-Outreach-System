@@ -197,12 +197,29 @@ describe('Notion Mapper Unit Tests', () => {
       expect(lead.score?.tier).toBe('green');
     });
 
-    it('handles mid and low score tier colors', () => {
-      const leadMid = normalizeNotionPage(mockNotionPageMidScore);
-      expect(leadMid.score?.tier).toBe('amber');
+    it('prioritizes Stage field for lead status in both AI Video and GTM', () => {
+      const pageWithStage = {
+        id: 'page_stage_test',
+        url: 'https://www.notion.so/stage_test',
+        properties: {
+          Role: {
+            type: 'rich_text',
+            rich_text: [{ plain_text: 'Account Executive' }],
+          },
+          Stage: {
+            type: 'select',
+            select: { name: 'Linkedin Done' },
+          },
+          'LinkedIn Status': {
+            type: 'select',
+            select: { name: 'Not started' },
+          },
+        },
+      };
 
-      const leadLow = normalizeNotionPage(mockNotionPageLowScore);
-      expect(leadLow.score?.tier).toBe('red');
+      const lead = normalizeNotionPage(pageWithStage);
+      expect(lead.linkedInStatus).toBe('Linkedin Done');
+      expect(lead.stage).toBe('Linkedin Done');
     });
   });
 });

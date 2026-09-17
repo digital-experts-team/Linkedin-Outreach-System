@@ -13,13 +13,7 @@ import {
 } from './icons';
 
 export type CategoryTabId = 'ai_video' | 'gtm';
-export type SortOption =
-  | 'date_desc'
-  | 'date_asc'
-  | 'score_desc'
-  | 'score_asc'
-  | 'status_asc'
-  | 'status_desc';
+export type SortOption = 'status' | 'date' | 'score';
 
 interface CategoryTab {
   id: CategoryTabId;
@@ -47,71 +41,40 @@ interface SortItemConfig {
   id: SortOption;
   label: string;
   subtitle: string;
-  group: 'Date' | 'Score' | 'Status';
   icon: React.ReactNode;
 }
 
 const SORT_OPTIONS: SortItemConfig[] = [
   {
-    id: 'date_desc',
-    label: 'Date (Newest first) ↓',
-    subtitle: 'Latest post & signal date',
-    group: 'Date',
-    icon: <CalendarIcon className="w-4 h-4" />,
-  },
-  {
-    id: 'date_asc',
-    label: 'Date (Oldest first) ↑',
-    subtitle: 'Earliest post & signal date',
-    group: 'Date',
-    icon: <CalendarIcon className="w-4 h-4" />,
-  },
-  {
-    id: 'score_desc',
-    label: 'Score (Highest first) ↓',
-    subtitle: 'Top match candidates',
-    group: 'Score',
-    icon: <StarIcon className="w-4 h-4" />,
-  },
-  {
-    id: 'score_asc',
-    label: 'Score (Lowest first) ↑',
-    subtitle: 'Lowest fit scores',
-    group: 'Score',
-    icon: <StarIcon className="w-4 h-4" />,
-  },
-  {
-    id: 'status_asc',
-    label: 'Status (A → Z) ↑',
-    subtitle: 'Alphabetical pipeline stage',
-    group: 'Status',
+    id: 'status',
+    label: 'Status',
+    subtitle: 'Sort by pipeline stage',
     icon: <SlidersIcon className="w-4 h-4" />,
   },
   {
-    id: 'status_desc',
-    label: 'Status (Z → A) ↓',
-    subtitle: 'Reverse alphabetical stage',
-    group: 'Status',
-    icon: <SlidersIcon className="w-4 h-4" />,
+    id: 'date',
+    label: 'Date',
+    subtitle: 'Sort by latest post & signal date',
+    icon: <CalendarIcon className="w-4 h-4" />,
+  },
+  {
+    id: 'score',
+    label: 'Score',
+    subtitle: 'Sort by highest match score',
+    icon: <StarIcon className="w-4 h-4" />,
   },
 ];
 
 function getSortBadgeLabel(sortBy: SortOption): string {
   switch (sortBy) {
-    case 'date_desc':
-      return 'Date ↓';
-    case 'date_asc':
-      return 'Date ↑';
-    case 'score_desc':
-      return 'Score ↓';
-    case 'score_asc':
-      return 'Score ↑';
-    case 'status_asc':
-      return 'Status A→Z';
-    case 'status_desc':
-      return 'Status Z→A';
+    case 'status':
+      return 'Status';
+    case 'date':
+      return 'Date';
+    case 'score':
+      return 'Score';
     default:
-      return 'Date ↓';
+      return 'Date';
   }
 }
 
@@ -209,43 +172,37 @@ export function VerticalTabs({
                 Sort Leads By
               </div>
 
-              {SORT_OPTIONS.map((item, index) => {
+              {SORT_OPTIONS.map((item) => {
                 const isSelected = sortBy === item.id;
-                const isFirstOfGroup =
-                  index === 0 || SORT_OPTIONS[index - 1].group !== item.group;
 
                 return (
-                  <React.Fragment key={item.id}>
-                    {isFirstOfGroup && index !== 0 && (
-                      <div className="h-[1px] bg-outline-variant/40 my-1 mx-2" />
-                    )}
-                    <button
-                      type="button"
-                      role="option"
-                      aria-selected={isSelected}
-                      onClick={() => handleSortSelect(item.id)}
-                      className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-medium transition-colors text-left tap-bounce ${
-                        isSelected
-                          ? 'bg-blue-50 text-primary font-bold'
-                          : 'text-on-surface hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <span className={isSelected ? 'text-primary' : 'text-secondary'}>
-                          {item.icon}
-                        </span>
-                        <div>
-                          <div className="leading-snug">{item.label}</div>
-                          <div className="text-[10px] text-secondary font-normal">
-                            {item.subtitle}
-                          </div>
+                  <button
+                    key={item.id}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    onClick={() => handleSortSelect(item.id)}
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-medium transition-colors text-left tap-bounce ${
+                      isSelected
+                        ? 'bg-blue-50 text-primary font-bold'
+                        : 'text-on-surface hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className={isSelected ? 'text-primary' : 'text-secondary'}>
+                        {item.icon}
+                      </span>
+                      <div>
+                        <div className="leading-snug">{item.label}</div>
+                        <div className="text-[10px] text-secondary font-normal">
+                          {item.subtitle}
                         </div>
                       </div>
-                      {isSelected && (
-                        <CheckIcon className="w-4 h-4 text-primary stroke-[2.5] flex-shrink-0" />
-                      )}
-                    </button>
-                  </React.Fragment>
+                    </div>
+                    {isSelected && (
+                      <CheckIcon className="w-4 h-4 text-primary stroke-[2.5] flex-shrink-0" />
+                    )}
+                  </button>
                 );
               })}
             </div>

@@ -333,7 +333,8 @@ export async function updateLeadStatusInNotion(
     const formattedId = pageId.replace(/-/g, '');
     const pageUrl = `https://api.notion.com/v1/pages/${formattedId}`;
 
-    const response = await fetch(pageUrl, {
+    // First attempt updating Stage and LinkedIn Status
+    let response = await fetch(pageUrl, {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -342,6 +343,11 @@ export async function updateLeadStatusInNotion(
       },
       body: JSON.stringify({
         properties: {
+          Stage: {
+            select: {
+              name: newStatus,
+            },
+          },
           'LinkedIn Status': {
             select: {
               name: newStatus,
@@ -351,6 +357,28 @@ export async function updateLeadStatusInNotion(
       }),
       cache: 'no-store',
     });
+
+    if (!response.ok) {
+      // Fallback to updating only Stage
+      response = await fetch(pageUrl, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Notion-Version': '2022-06-28',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          properties: {
+            Stage: {
+              select: {
+                name: newStatus,
+              },
+            },
+          },
+        }),
+        cache: 'no-store',
+      });
+    }
 
     if (!response.ok) {
       const errorJson = await response.json().catch(() => ({}));

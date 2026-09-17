@@ -207,7 +207,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                 updating={updatingStatus}
               />
 
-              {lead.stage && (
+              {lead.stage && lead.stage !== lead.linkedInStatus && (
                 <span className="text-xs font-medium text-secondary bg-gray-100 px-2 py-0.5 rounded">
                   Stage: {lead.stage}
                 </span>

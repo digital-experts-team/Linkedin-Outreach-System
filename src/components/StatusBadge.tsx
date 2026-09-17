@@ -4,11 +4,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDownIcon, CheckIcon, SyncIcon } from './icons';
 
 export const STATUS_OPTIONS = [
+  'New',
   'Draft Ready',
+  'Linkedin Done',
+  'Email Done',
+  'Both Done',
+  'Follow Up Done',
   'LinkedIn Send',
-  'Follow Up',
+  'Enrichment Done',
   'Done',
-  'Not Started',
+  'Closed Won',
+  'Closed Lost',
   'Hold',
 ];
 
@@ -22,13 +28,23 @@ export function getStatusColorClasses(status: string): string {
   const normalized = (status || '').trim().toLowerCase();
 
   switch (normalized) {
+    case 'new':
     case 'not started':
       return 'bg-gray-100 text-gray-700 border-gray-300';
     case 'draft':
       return 'bg-orange-50 text-orange-700 border-orange-200';
     case 'draft ready':
+    case 'job board':
       return 'bg-blue-50 text-primary border-blue-200';
+    case 'linkedin done':
+      return 'bg-sky-50 text-sky-700 border-sky-200';
+    case 'email done':
+      return 'bg-amber-50 text-amber-700 border-amber-200';
+    case 'enrichment done':
+      return 'bg-orange-50 text-orange-700 border-orange-200';
+    case 'both done':
     case 'done':
+    case 'closed won':
     case 'connected':
     case 'replied':
       return 'bg-green-50 text-green-700 border-green-200';
@@ -36,8 +52,12 @@ export function getStatusColorClasses(status: string): string {
     case 'sent':
     case 'in outreach':
       return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    case 'follow up done':
     case 'follow up':
       return 'bg-purple-50 text-purple-700 border-purple-200';
+    case 'closed lost':
+      return 'bg-red-50 text-red-700 border-red-200';
+    case 'skip':
     case 'hold':
     case 'not interested':
       return 'bg-amber-50 text-amber-700 border-amber-200';

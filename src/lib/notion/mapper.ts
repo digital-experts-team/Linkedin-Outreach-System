@@ -163,9 +163,14 @@ export function normalizeAiVideoNotionPage(page: any): Lead {
   const postedByRaw = primaryContactName || flattenRichText(properties['Posted by']?.rich_text)?.trim() || null;
   const companyRaw = flattenRichText(properties['Company']?.rich_text)?.trim() || null;
 
-  // Status & Score
+  // Status & Score (prioritized from Notion Stage field)
+  const stage =
+    extractSelect(properties['Stage']) ||
+    properties['Stage']?.status?.name?.trim() ||
+    flattenRichText(properties['Stage']?.rich_text)?.trim() ||
+    null;
   const linkedInStatusSelect = properties['LinkedIn Status']?.select;
-  const linkedInStatus = linkedInStatusSelect?.name?.trim() || 'No status';
+  const linkedInStatus = stage || linkedInStatusSelect?.name?.trim() || 'No status';
   const score = parseScore(properties['Score']?.select);
 
   // Outer Page & Outreach: LinkedIn DM
@@ -194,7 +199,6 @@ export function normalizeAiVideoNotionPage(page: any): Lead {
   const linkedInPostUrl = properties['LinkedIn Post URL']?.url?.trim() || null;
   const location = flattenRichText(properties['Location']?.rich_text)?.trim() || null;
   const sourceType = extractSelect(properties['Source Type']) || 'LinkedIn';
-  const stage = extractSelect(properties['Stage']);
 
   return {
     id: page.id,
@@ -290,9 +294,14 @@ export function normalizeNotionPage(page: any): Lead {
   const postedBy = postedByRaw || null;
   const company = companyRaw || null;
 
-  // Primary status: LinkedIn Status (select)
+  // Status & Score (prioritized from Notion Stage field)
+  const stage =
+    extractSelect(properties['Stage']) ||
+    properties['Stage']?.status?.name?.trim() ||
+    flattenRichText(properties['Stage']?.rich_text)?.trim() ||
+    null;
   const linkedInStatusSelect = properties['LinkedIn Status']?.select;
-  const linkedInStatus = linkedInStatusSelect?.name?.trim() || 'No status';
+  const linkedInStatus = stage || linkedInStatusSelect?.name?.trim() || 'No status';
 
   // Message / Clipboard text: LinkedIn DM (rich_text)
   const linkedInDm = flattenRichText(properties['LinkedIn DM']?.rich_text);
@@ -324,7 +333,6 @@ export function normalizeNotionPage(page: any): Lead {
   const sourceLink = properties['Source Link']?.url?.trim() || null;
   const linkedInPostUrl = properties['LinkedIn Post URL']?.url?.trim() || null;
   const skills = extractMultiSelect(properties['Skills']);
-  const stage = extractSelect(properties['Stage']);
   const commentDraft = flattenRichText(properties['Comment Draft']?.rich_text)?.trim() || null;
   const commentStatus = extractSelect(properties['Comment Status']);
   const emailSubject = flattenRichText(properties['Email Subject']?.rich_text)?.trim() || null;
