@@ -8,6 +8,7 @@ import {
   CalendarIcon,
   ChevronDownIcon,
   CheckIcon,
+  SlidersIcon,
 } from './icons';
 
 export type CategoryTabId = 'ai_video' | 'gtm';
@@ -95,32 +96,28 @@ export function VerticalTabs({
   return (
     <div className="sticky top-14 z-30 bg-white/90 backdrop-blur-md shadow-xs border-b border-outline-variant/60">
       <div
-        className="flex items-center gap-2 overflow-x-auto hide-scrollbar tab-fade-right px-4 md:px-8 py-2.5"
+        className="flex items-center gap-2.5 overflow-x-auto hide-scrollbar tab-fade-right px-4 md:px-8 py-2.5"
         aria-label="Filter & Sort"
       >
-        {/* Single Sort Dropdown Container */}
+        {/* Completely Redesigned Sort Control Widget (Distinct from Category Pills) */}
         <div className="relative flex-none" ref={sortRef}>
           <button
             type="button"
             onClick={() => setIsSortOpen((prev) => !prev)}
             aria-expanded={isSortOpen}
             aria-haspopup="listbox"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all border border-outline-variant/80 bg-white text-secondary hover:text-on-surface hover:border-outline shadow-2xs focus:outline-none focus:ring-2 focus:ring-primary select-none tap-bounce"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all bg-slate-900 hover:bg-slate-800 text-white shadow-xs border border-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 select-none tap-bounce"
             title="Sort leads"
           >
-            {sortBy === 'date' ? (
-              <>
-                <CalendarIcon className="w-3.5 h-3.5 text-primary" />
-                <span className="text-on-surface font-semibold">Sort: Date ↓</span>
-              </>
-            ) : (
-              <>
-                <StarIcon className="w-3.5 h-3.5 text-primary fill-primary/20" />
-                <span className="text-on-surface font-semibold">Sort: Score ↓</span>
-              </>
-            )}
+            <SlidersIcon className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Sort</span>
+              <span className="font-bold text-white bg-slate-800 px-1.5 py-0.5 rounded text-[11px] border border-slate-700/80">
+                {sortBy === 'date' ? 'Date ↓' : 'Score ↓'}
+              </span>
+            </div>
             <ChevronDownIcon
-              className={`w-3.5 h-3.5 text-secondary transition-transform duration-200 ${
+              className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
                 isSortOpen ? 'rotate-180' : ''
               }`}
             />
