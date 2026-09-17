@@ -309,3 +309,75 @@ export async function fetchLeadByIdFromNotion(pageId: string): Promise<FetchLead
     };
   }
 }
+
+/**
+ * Updates the status of a lead in Notion.
+ */
+export async function updateLeadStatusInNotion(
+  pageId: string,
+  newStatus: string
+): Promise<{ success: boolean; lead?: Lead; error?: any }> {
+  const token = process.env.NOTION_TOKEN?.trim();
+
+  if (!token) {
+    return {
+      success: false,
+      error: {
+        code: 'CONFIG_REQUIRED',
+        message: 'Notion integration token is not configured.',
+      },
+    };
+  }
+
+  try {
+    const formattedId = pageId.replace(/-/g, '');
+    const pageUrl = `https://api.notion.com/v1/pages/${formattedId}`;
+
+    const response = await fetch(pageUrl, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        properties: {
+          'LinkedIn Status': {
+            select: {
+              name: newStatus,
+            },
+          },
+        },
+      }),
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      const errorJson = await response.json().catch(() => ({}));
+      return {
+        success: false,
+        error: {
+          code: 'FETCH_ERROR',
+          message: errorJson.message || `Notion API returned HTTP ${response.status}`,
+        },
+      };
+    }
+
+    const updatedPage = await response.json();
+    const lead = normalizeNotionPage(updatedPage);
+
+    return {
+      success: true,
+      lead,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: {
+        code: 'FETCH_ERROR',
+        message: error?.message || 'Failed to update lead status in Notion',
+      },
+    };
+  }
+}
+

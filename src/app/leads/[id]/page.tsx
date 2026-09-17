@@ -6,6 +6,7 @@ import { Lead, LeadDetailApiResponse } from '@/types/lead';
 import { StatusBadge } from '@/components/StatusBadge';
 import { ScoreBadge } from '@/components/ScoreBadge';
 import { LinkedInAction } from '@/components/LinkedInAction';
+import { Toast } from '@/components/Toast';
 import {
   ArrowLeftIcon,
   MailIcon,
@@ -29,8 +30,11 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const [copiedComment, setCopiedComment] = useState(false);
 
   useEffect(() => {
     async function fetchDetail() {
@@ -58,6 +62,41 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
     }
   }, [id]);
 
+  const handleStatusChange = async (newStatus: string) => {
+    if (!lead) return;
+    const oldStatus = lead.linkedInStatus;
+
+    // Optimistic UI Update
+    setLead((prev) => (prev ? { ...prev, linkedInStatus: newStatus } : prev));
+    setUpdatingStatus(true);
+
+    try {
+      const res = await fetch(`/api/leads/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      const data: LeadDetailApiResponse = await res.json();
+      if (data.error) {
+        // Revert on error
+        setLead((prev) => (prev ? { ...prev, linkedInStatus: oldStatus } : prev));
+        setNotice(`Failed to update status: ${data.error.message}`);
+      } else if (data.lead) {
+        setLead(data.lead);
+        setNotice(`Status updated to "${newStatus}" in Notion CRM`);
+      }
+    } catch (err: any) {
+      // Revert on network error
+      setLead((prev) => (prev ? { ...prev, linkedInStatus: oldStatus } : prev));
+      setNotice('Network error: status could not be saved to Notion');
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
   const handleCopyEmailDraft = () => {
     if (!lead?.emailBody) return;
     const textToCopy = lead.emailSubject
@@ -65,13 +104,22 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
       : lead.emailBody;
     navigator.clipboard.writeText(textToCopy);
     setCopiedEmail(true);
+    setNotice('Email outreach draft copied to clipboard');
     setTimeout(() => setCopiedEmail(false), 3000);
+  };
+
+  const handleCopyCommentDraft = () => {
+    if (!lead?.commentDraft) return;
+    navigator.clipboard.writeText(lead.commentDraft);
+    setCopiedComment(true);
+    setNotice('Comment draft copied to clipboard');
+    setTimeout(() => setCopiedComment(false), 3000);
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background text-on-surface">
-        <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-surface-container-lowest border-b border-outline-variant px-4 md:px-8 flex items-center">
+        <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-white/90 backdrop-blur-md border-b border-outline-variant/70 px-4 md:px-8 flex items-center">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-primary font-semibold text-sm hover:underline"
@@ -81,11 +129,11 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </Link>
         </header>
 
-        <main className="pt-24 pb-16 max-w-4xl mx-auto px-4 md:px-8 space-y-6 animate-pulse">
-          <div className="h-8 w-3/4 bg-gray-200 rounded" />
+        <main className="pt-20 pb-16 max-w-4xl mx-auto px-4 md:px-8 space-y-6 animate-pulse">
+          <div className="h-8 w-3/4 bg-gray-200 rounded-lg" />
           <div className="h-5 w-1/2 bg-gray-200 rounded" />
-          <div className="h-40 bg-gray-200 rounded-xl" />
-          <div className="h-40 bg-gray-200 rounded-xl" />
+          <div className="h-40 bg-gray-200 rounded-2xl" />
+          <div className="h-40 bg-gray-200 rounded-2xl" />
         </main>
       </div>
     );
@@ -94,7 +142,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   if (error || !lead) {
     return (
       <div className="min-h-screen bg-background text-on-surface">
-        <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-surface-container-lowest border-b border-outline-variant px-4 md:px-8 flex items-center">
+        <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-white/90 backdrop-blur-md border-b border-outline-variant/70 px-4 md:px-8 flex items-center">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-primary font-semibold text-sm hover:underline"
@@ -104,7 +152,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </Link>
         </header>
 
-        <main className="pt-24 pb-16 max-w-4xl mx-auto px-4 md:px-8">
+        <main className="pt-20 pb-16 max-w-4xl mx-auto px-4 md:px-8">
           <ErrorState
             message="Unable to load lead details"
             details={error || 'Lead not found'}
@@ -118,6 +166,10 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   const hasSubtitle = lead.postedBy || lead.company;
   const isAiVideo = lead.verticalId === 'ai_video';
 
+  // Strategic highlight: AI Video uses whySignalApt; GTM uses postSummary as the hero signal box
+  const heroHighlight = lead.whySignalApt || lead.postSummary;
+  const heroHighlightTitle = lead.whySignalApt ? 'Why Signal Apt' : 'Lead Summary & Strategic Signal';
+
   return (
     <div className="min-h-screen bg-background text-on-surface pb-24">
       {/* Top Navigation Bar */}
@@ -129,8 +181,8 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           <ArrowLeftIcon className="w-5 h-5" />
           <span>Back to Leads</span>
         </Link>
-        <span className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full ${
-          isAiVideo ? 'text-indigo-700 bg-indigo-100' : 'text-primary bg-blue-100/70'
+        <span className={`text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full ${
+          isAiVideo ? 'text-indigo-700 bg-indigo-100' : 'text-primary bg-blue-100/80'
         }`}>
           {lead.verticalLabel}
         </span>
@@ -138,16 +190,23 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
       {/* Main Content Area */}
       <main className="pt-20 max-w-4xl mx-auto px-3.5 sm:px-6 md:px-8 space-y-4 sm:space-y-6">
-        {/* 1. Header Overview Card */}
+        {/* 1. Header Overview Card with Interactive Status Picker */}
         <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded ${
-                isAiVideo ? 'text-indigo-700 bg-indigo-100' : 'text-primary bg-blue-100/70'
+              <span className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-md ${
+                isAiVideo ? 'text-indigo-700 bg-indigo-100/80' : 'text-primary bg-blue-100/70'
               }`}>
                 {lead.verticalLabel}
               </span>
-              <StatusBadge status={lead.linkedInStatus} />
+
+              {/* Interactive Status Changer Dropdown */}
+              <StatusBadge
+                status={lead.linkedInStatus}
+                onChangeStatus={handleStatusChange}
+                updating={updatingStatus}
+              />
+
               {lead.stage && (
                 <span className="text-xs font-medium text-secondary bg-gray-100 px-2 py-0.5 rounded">
                   Stage: {lead.stage}
@@ -208,20 +267,20 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </div>
         </section>
 
-        {/* 2. Why Signal Apt (AI Video Specific) */}
-        {lead.whySignalApt && (
+        {/* 2. Hero Signal / Summary Highlight Box (Uniform for AI Video & GTM) */}
+        {heroHighlight && (
           <section className="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 border border-blue-200/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-2.5">
             <h2 className="text-base font-bold text-blue-950 flex items-center gap-2">
               <StarIcon className="w-4 h-4 text-primary fill-current" />
-              Why Signal Apt
+              {heroHighlightTitle}
             </h2>
             <p className="text-sm md:text-base text-blue-950 leading-relaxed font-medium">
-              {lead.whySignalApt}
+              {heroHighlight}
             </p>
           </section>
         )}
 
-        {/* 3. Signal Snippet (if present) */}
+        {/* 3. Signal Snippet (if present and distinct from hero) */}
         {lead.signalSnippet && (
           <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-2">
             <h2 className="text-xs font-bold uppercase tracking-wider text-secondary flex items-center gap-1.5">
@@ -234,7 +293,40 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </section>
         )}
 
-        {/* 4. Pain Points (if present) */}
+        {/* 4. Role Requirements & Scope (if present) */}
+        {lead.requirement && (
+          <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-3">
+            <h2 className="text-base font-bold text-on-surface flex items-center gap-2">
+              <BriefcaseIcon className="w-4 h-4 text-primary" />
+              Role Requirements &amp; Scope
+            </h2>
+            <div className="text-sm md:text-base text-on-surface leading-relaxed whitespace-pre-line bg-surface-container-low/50 p-4 rounded-xl border border-outline-variant/40 font-normal">
+              {lead.requirement}
+            </div>
+          </section>
+        )}
+
+        {/* 5. Identified Skills / Capabilities (GTM specific) */}
+        {lead.skills && lead.skills.length > 0 && (
+          <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-3">
+            <h2 className="text-base font-bold text-on-surface flex items-center gap-2">
+              <TagIcon className="w-4 h-4 text-primary" />
+              Target Capabilities &amp; Skills
+            </h2>
+            <div className="flex flex-wrap gap-2 pt-1">
+              {lead.skills.map((skill, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-blue-50/80 text-primary border border-blue-200/70 rounded-lg text-xs font-semibold"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* 6. Identified Pain Points (AI Video specific) */}
         {lead.painPoints && lead.painPoints.length > 0 && (
           <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-3">
             <h2 className="text-base font-bold text-on-surface flex items-center gap-2">
@@ -251,7 +343,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </section>
         )}
 
-        {/* 5. Direct Contact & Links */}
+        {/* 7. Direct Contact & Profile Links */}
         <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
           <h2 className="text-base font-bold text-on-surface">Contact &amp; Profiles</h2>
 
@@ -317,39 +409,15 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </div>
         </section>
 
-        {/* 6. Post Summary (if present) */}
-        {lead.postSummary && (
-          <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-3">
-            <h2 className="text-base font-bold text-on-surface flex items-center gap-2">
-              <FileTextIcon className="w-4 h-4 text-primary" />
-              Post Summary
-            </h2>
-            <p className="text-sm md:text-base text-on-surface leading-relaxed bg-surface-container-low/50 p-4 rounded-xl border border-outline-variant/40 font-normal">
-              {lead.postSummary}
-            </p>
-          </section>
-        )}
-
-        {/* 7. Requirements & Expectations (if present) */}
-        {lead.requirement && (
-          <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-3">
-            <h2 className="text-base font-bold text-on-surface flex items-center gap-2">
-              <BriefcaseIcon className="w-4 h-4 text-primary" />
-              Role Requirements &amp; Scope
-            </h2>
-            <div className="text-sm md:text-base text-on-surface leading-relaxed whitespace-pre-line bg-surface-container-low/50 p-4 rounded-xl border border-outline-variant/40 font-normal">
-              {lead.requirement}
-            </div>
-          </section>
-        )}
-
         {/* 8. LinkedIn Direct Message (Outreach Draft) */}
         <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-on-surface">LinkedIn DM Draft</h2>
-            <span className="text-xs font-semibold text-secondary">
-              Status: {lead.linkedInStatus}
-            </span>
+            <StatusBadge
+              status={lead.linkedInStatus}
+              onChangeStatus={handleStatusChange}
+              updating={updatingStatus}
+            />
           </div>
 
           <div className="border-l-4 border-primary pl-4 py-3 bg-surface-container-low/70 rounded-r-xl">
@@ -410,7 +478,44 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </section>
         )}
 
-        {/* 10. Enrichment & Research Notes (if present) */}
+        {/* 10. Comment Draft (GTM specific) */}
+        {lead.commentDraft && (
+          <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold text-on-surface">Post Comment Draft</h2>
+              {lead.commentStatus && (
+                <span className="text-xs font-medium bg-gray-100 text-secondary px-2 py-0.5 rounded">
+                  Status: {lead.commentStatus}
+                </span>
+              )}
+            </div>
+
+            <div className="p-4 bg-surface-container-low/50 rounded-xl border border-outline-variant/40 text-sm whitespace-pre-line leading-relaxed text-on-surface">
+              {lead.commentDraft}
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={handleCopyCommentDraft}
+                className="flex items-center gap-2 px-4 py-2.5 bg-surface-container hover:bg-surface-container-high text-on-surface text-sm font-semibold rounded-xl transition-all border border-outline-variant tap-bounce shadow-xs"
+              >
+                {copiedComment ? (
+                  <>
+                    <CheckIcon className="w-4 h-4 text-green-600" />
+                    <span>Comment Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <CopyIcon className="w-4 h-4" />
+                    <span>Copy Comment Draft</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </section>
+        )}
+
+        {/* 11. Enrichment & Research Notes */}
         {(lead.notes || lead.enrichmentNotes) && (
           <section className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-6 shadow-xs space-y-3">
             <h2 className="text-base font-bold text-on-surface">Verification &amp; Research Notes</h2>
@@ -427,6 +532,10 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </section>
         )}
       </main>
+
+      {/* Accessible Toast Announcements */}
+      <Toast message={notice} onClose={() => setNotice(null)} />
     </div>
   );
 }
+

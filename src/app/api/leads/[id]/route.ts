@@ -51,3 +51,84 @@ export async function GET(
     }
   );
 }
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse<LeadDetailApiResponse>> {
+  const { id } = await params;
+
+  if (!id) {
+    return NextResponse.json(
+      {
+        error: {
+          code: 'FETCH_ERROR',
+          message: 'Lead ID is required',
+        },
+      },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const body = await request.json();
+    const status = body?.status;
+
+    if (!status || typeof status !== 'string') {
+      return NextResponse.json(
+        {
+          error: {
+            code: 'FETCH_ERROR',
+            message: 'Status string is required',
+          },
+        },
+        { status: 400 }
+      );
+    }
+
+    const { updateLeadStatusInNotion } = await import('@/lib/notion/client');
+    const result = await updateLeadStatusInNotion(id, status);
+
+    const responseHeaders = {
+      'Cache-Control': 'private, no-store, no-cache, max-age=0, must-revalidate',
+      'Pragma': 'no-cache',
+    };
+
+    if (!result.success || result.error) {
+      return NextResponse.json(
+        {
+          error: result.error || {
+            code: 'FETCH_ERROR',
+            message: 'Failed to update status in Notion',
+          },
+        },
+        {
+          status: 500,
+          headers: responseHeaders,
+        }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        lead: result.lead,
+      },
+      {
+        status: 200,
+        headers: responseHeaders,
+      }
+    );
+  } catch (err: any) {
+    return NextResponse.json(
+      {
+        error: {
+          code: 'FETCH_ERROR',
+          message: 'Invalid request body',
+          details: err?.message,
+        },
+      },
+      { status: 400 }
+    );
+  }
+}
+
