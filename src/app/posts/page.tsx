@@ -186,7 +186,14 @@ export default function PostsPage() {
         {!loading && !error && posts.length > 0 && (
           <div className="space-y-4 pt-1">
             {posts.map((post) => (
-              <LinkedInPostCard key={post.id} post={post} onShowNotice={setNotice} />
+              <LinkedInPostCard
+                key={post.id}
+                post={post}
+                onShowNotice={setNotice}
+                onPostUpdated={(updatedPost) =>
+                  setPosts((prev) => prev.map((p) => (p.id === updatedPost.id ? updatedPost : p)))
+                }
+              />
             ))}
           </div>
         )}

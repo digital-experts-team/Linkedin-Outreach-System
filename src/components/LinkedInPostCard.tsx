@@ -7,14 +7,14 @@ import {
   CheckIcon,
   ExternalLinkIcon,
   EyeIcon,
-  SlidersIcon,
-  CalendarIcon,
-  TrendingUpIcon,
+  EditIcon,
+  SyncIcon,
 } from './icons';
 
 interface LinkedInPostCardProps {
   post: LinkedInPost;
   onShowNotice?: (msg: string) => void;
+  onPostUpdated?: (updatedPost: LinkedInPost) => void;
 }
 
 function formatPostDisplayDate(dateStr?: string | null): string {
@@ -35,9 +35,11 @@ function formatPostDisplayDate(dateStr?: string | null): string {
   return dateStr;
 }
 
-export function LinkedInPostCard({ post, onShowNotice }: LinkedInPostCardProps) {
+export function LinkedInPostCard({ post, onShowNotice, onPostUpdated }: LinkedInPostCardProps) {
   const [copied, setCopied] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentText, setCurrentText] = useState(post.fullCopy || '');
+  const [isSaving, setIsSaving] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   const displayDate = formatPostDisplayDate(post.scheduledDate || post.postedDate || post.weekOf);
@@ -47,26 +49,58 @@ export function LinkedInPostCard({ post, onShowNotice }: LinkedInPostCardProps) 
 
   const handleCopyText = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!post.fullCopy) return;
-    navigator.clipboard.writeText(post.fullCopy);
+    const textToCopy = isEditing ? currentText : post.fullCopy;
+    if (!textToCopy) return;
+    navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     if (onShowNotice) {
-      onShowNotice('LinkedIn post copy copied to clipboard');
+      onShowNotice('Post text copied to clipboard');
     }
-    setTimeout(() => setCopied(false), 2500);
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  // Render text copy as it is in Notion
-  const renderFormattedCopy = () => {
-    if (!post.fullCopy) {
-      return <p className="text-secondary italic">No post copy written yet.</p>;
-    }
+  const handleSaveToNotion = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsSaving(true);
 
-    return (
-      <div className="text-[13.5px] sm:text-[14px] text-slate-900 leading-relaxed font-normal whitespace-pre-wrap break-words">
-        {post.fullCopy}
-      </div>
-    );
+    try {
+      const res = await fetch(`/api/posts/${post.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullCopy: currentText,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.error) {
+        if (onShowNotice) {
+          onShowNotice(`Failed to save to Notion: ${data.error.message}`);
+        }
+      } else if (data.post) {
+        setIsEditing(false);
+        if (onPostUpdated) {
+          onPostUpdated(data.post);
+        }
+        if (onShowNotice) {
+          onShowNotice('Post content updated and saved in Notion!');
+        }
+      }
+    } catch (err: any) {
+      if (onShowNotice) {
+        onShowNotice('Network error: failed to update Notion');
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancelEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentText(post.fullCopy || '');
+    setIsEditing(false);
   };
 
   const hasImages = post.images && post.images.length > 0;
@@ -74,7 +108,7 @@ export function LinkedInPostCard({ post, onShowNotice }: LinkedInPostCardProps) 
   return (
     <>
       <article className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col transition-all hover:shadow-md hover:border-primary/40">
-        {/* 1. LinkedIn Author Header */}
+        {/* 1. LinkedIn Author Header with Status & Copy Icon at Top */}
         <div className="p-4 pb-3 flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 min-w-0">
             {post.authorAvatarUrl ? (
@@ -102,40 +136,109 @@ export function LinkedInPostCard({ post, onShowNotice }: LinkedInPostCardProps) 
                 {post.authorHeadline || 'Founder & CEO at Outreach Pilot'}
               </p>
 
-              <div className="flex items-center gap-1.5 text-slate-400 text-[11px] mt-1 font-medium">
+              {/* Status and Date placed in Top Header */}
+              <div className="flex items-center gap-2 text-slate-500 text-[11px] mt-1 font-medium flex-wrap">
                 <span className="text-blue-600 font-semibold">{displayDate}</span>
                 <span>•</span>
-                <span className="inline-flex items-center gap-0.5" title="Public post">
-                  🌐 Public
+                <span
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                    isScheduled
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      : isPublished
+                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                      : 'bg-amber-50 text-amber-700 border border-amber-200'
+                  }`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      isScheduled ? 'bg-emerald-500' : isPublished ? 'bg-blue-500' : 'bg-amber-500'
+                    }`}
+                  />
+                  <span>{post.status || 'Draft'}</span>
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            {post.vertical && (
-              <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200/60 hidden sm:inline-block">
-                {post.vertical}
-              </span>
-            )}
+          {/* Top Actions: Copy Icon + Open in Notion */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {/* Top Copy Icon Button */}
+            <button
+              type="button"
+              onClick={handleCopyText}
+              className="p-2 rounded-xl text-slate-500 hover:text-primary hover:bg-blue-50 transition-all tap-bounce cursor-pointer border border-transparent hover:border-blue-100"
+              title="Copy post text"
+              aria-label="Copy post text"
+            >
+              {copied ? (
+                <CheckIcon className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
+              ) : (
+                <CopyIcon className="w-4 h-4" />
+              )}
+            </button>
+
+            {/* Open in Notion Link */}
             <a
               href={post.notionUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition tap-bounce cursor-pointer"
               title="Open in Notion"
+              aria-label="Open in Notion"
             >
               <ExternalLinkIcon className="w-4 h-4" />
             </a>
           </div>
         </div>
 
-        {/* 2. Post Body Content */}
-        <div className="px-4 py-1">{renderFormattedCopy()}</div>
+        {/* 2. Post Body Content (Directly selectable & editable) */}
+        <div className="px-4 py-2">
+          {isEditing ? (
+            <div className="space-y-2.5 animate-fade-in">
+              <textarea
+                value={currentText}
+                onChange={(e) => setCurrentText(e.target.value)}
+                rows={Math.max(6, currentText.split('\n').length + 1)}
+                className="w-full p-3 text-[13.5px] sm:text-[14px] text-slate-900 bg-slate-50/80 border border-primary/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white leading-relaxed font-normal resize-y"
+                placeholder="Write your LinkedIn post copy here..."
+                autoFocus
+              />
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  disabled={isSaving}
+                  className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition tap-bounce cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveToNotion}
+                  disabled={isSaving}
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg shadow-xs transition tap-bounce cursor-pointer disabled:opacity-60"
+                >
+                  {isSaving ? (
+                    <>
+                      <SyncIcon className="w-3.5 h-3.5 animate-spin" />
+                      <span>Saving to Notion...</span>
+                    </>
+                  ) : (
+                    <span>Save to Notion</span>
+                  )}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-[13.5px] sm:text-[14px] text-slate-900 leading-relaxed font-normal whitespace-pre-wrap break-words select-text">
+              {post.fullCopy || <p className="text-secondary italic">No post copy written yet.</p>}
+            </div>
+          )}
+        </div>
 
         {/* 3. Media Graphic / Image Attachment */}
         {hasImages && (
-          <div className="px-4 pt-3 pb-2">
+          <div className="px-4 pt-2 pb-2">
             <div className="rounded-xl overflow-hidden border border-slate-200/80 bg-slate-50 relative group">
               <img
                 src={post.images[0].url}
@@ -147,7 +250,7 @@ export function LinkedInPostCard({ post, onShowNotice }: LinkedInPostCardProps) 
               <button
                 type="button"
                 onClick={() => setLightboxImage(post.images[0].url)}
-                className="absolute bottom-2.5 right-2.5 bg-black/70 hover:bg-black/85 text-white px-2.5 py-1 rounded-lg text-xs font-medium backdrop-blur-md flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute bottom-2.5 right-2.5 bg-black/70 hover:bg-black/85 text-white px-2.5 py-1 rounded-lg text-xs font-medium backdrop-blur-md flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
               >
                 <EyeIcon className="w-3.5 h-3.5" />
                 <span>Zoom</span>
@@ -156,51 +259,14 @@ export function LinkedInPostCard({ post, onShowNotice }: LinkedInPostCardProps) 
           </div>
         )}
 
-        {/* 4. Social Reactions Simulation Mini Bar */}
-        <div className="px-4 py-2 mt-1 flex items-center justify-between text-[11px] text-slate-500 border-b border-slate-100 select-none">
-          <div className="flex items-center gap-1.5">
-            <div className="flex -space-x-1 items-center">
-              <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] shadow-2xs">
-                👍
-              </span>
-              <span className="w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center text-[9px] shadow-2xs">
-                💡
-              </span>
-            </div>
-            <span className="font-medium text-slate-600">You and 42 others</span>
-          </div>
-
-          <div className="flex items-center gap-2 text-slate-400">
+        {/* 4. Streamlined Quiet Footer */}
+        <div className="px-4 py-2.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-2 mt-2">
+          <div className="flex items-center gap-2">
             {post.ctaKeyword && (
-              <span className="font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded text-[10px]">
-                Keyword: "{post.ctaKeyword}"
+              <span className="font-bold text-blue-600 bg-blue-50 border border-blue-200/70 px-2 py-0.5 rounded-md text-[11px]">
+                CTA: "{post.ctaKeyword}"
               </span>
             )}
-            <span>14 comments expected</span>
-          </div>
-        </div>
-
-        {/* 5. Streamlined Card Action Footer */}
-        <div className="px-4 py-2.5 bg-slate-50/80 flex items-center justify-between gap-2">
-          {/* Status Badge */}
-          <div className="flex items-center gap-2">
-            <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                isScheduled
-                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                  : isPublished
-                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                  : 'bg-gray-100 text-gray-700 border border-gray-200'
-              }`}
-            >
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  isScheduled ? 'bg-emerald-500' : isPublished ? 'bg-blue-500' : 'bg-gray-400'
-                }`}
-              />
-              <span>{post.status || 'Draft'}</span>
-            </span>
-
             {post.angleType && (
               <span className="text-[11px] font-medium text-secondary bg-white px-2 py-0.5 rounded border border-outline-variant/60 hidden sm:inline-block">
                 {post.angleType}
@@ -208,26 +274,21 @@ export function LinkedInPostCard({ post, onShowNotice }: LinkedInPostCardProps) 
             )}
           </div>
 
-          {/* Action Buttons */}
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleCopyText}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-primary bg-blue-50 hover:bg-blue-100 border border-blue-200/80 rounded-lg transition-all tap-bounce cursor-pointer"
-              title="Copy post copy to clipboard"
-            >
-              {copied ? (
-                <>
-                  <CheckIcon className="w-3.5 h-3.5 text-green-600 stroke-[2.5]" />
-                  <span className="text-green-700">Copied!</span>
-                </>
-              ) : (
-                <>
-                  <CopyIcon className="w-3.5 h-3.5" />
-                  <span>Copy Copy</span>
-                </>
-              )}
-            </button>
+            {!isEditing && (
+              <button
+                type="button"
+                onClick={() => {
+                  setCurrentText(post.fullCopy || '');
+                  setIsEditing(true);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition-all tap-bounce cursor-pointer"
+                title="Edit text copy and update Notion"
+              >
+                <EditIcon className="w-3.5 h-3.5 text-slate-500" />
+                <span>Edit Post</span>
+              </button>
+            )}
 
             {hasImages && (
               <button

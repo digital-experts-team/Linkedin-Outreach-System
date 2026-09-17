@@ -522,4 +522,104 @@ export async function fetchLinkedInPosts(options: FetchPostsOptions = {}): Promi
   }
 }
 
+/**
+ * Creates rich text fragments chunked by 2000 characters for Notion API.
+ */
+export function createRichTextChunks(text: string): Array<{ type: 'text'; text: { content: string } }> {
+  if (!text) return [];
+  const chunkSize = 2000;
+  const chunks = [];
+  for (let i = 0; i < text.length; i += chunkSize) {
+    chunks.push({
+      type: 'text' as const,
+      text: {
+        content: text.slice(i, i + chunkSize),
+      },
+    });
+  }
+  return chunks;
+}
+
+/**
+ * Updates a LinkedIn post in the Notion Content Hub database (e.g. edited copy or status).
+ */
+export async function updateLinkedInPostInNotion(
+  pageId: string,
+  updates: { fullCopy?: string; status?: string }
+): Promise<{ success: boolean; post?: LinkedInPost; error?: any }> {
+  const token = process.env.NOTION_TOKEN?.trim();
+
+  if (!token) {
+    return {
+      success: false,
+      error: {
+        code: 'CONFIG_REQUIRED',
+        message: 'Notion integration token is not configured.',
+      },
+    };
+  }
+
+  try {
+    const formattedId = pageId.replace(/-/g, '');
+    const pageUrl = `https://api.notion.com/v1/pages/${formattedId}`;
+
+    const propertiesToUpdate: Record<string, any> = {};
+
+    if (updates.fullCopy !== undefined) {
+      propertiesToUpdate['Full Copy'] = {
+        rich_text: createRichTextChunks(updates.fullCopy),
+      };
+    }
+
+    if (updates.status) {
+      propertiesToUpdate['Status'] = {
+        select: {
+          name: updates.status,
+        },
+      };
+    }
+
+    const response = await fetch(pageUrl, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        properties: propertiesToUpdate,
+      }),
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      const errorJson = await response.json().catch(() => ({}));
+      return {
+        success: false,
+        error: {
+          code: 'FETCH_ERROR',
+          message: errorJson.message || `Notion API returned HTTP ${response.status}`,
+        },
+      };
+    }
+
+    const updatedPage = await response.json();
+    const post = normalizeNotionPostPage(updatedPage);
+
+    return {
+      success: true,
+      post,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: {
+        code: 'FETCH_ERROR',
+        message: error?.message || 'Failed to update post in Notion Content Hub',
+      },
+    };
+  }
+}
+
+
 
