@@ -105,8 +105,12 @@ export default function LeadsPage() {
         const scoreB = b.score?.isNumeric ? parseFloat(b.score.raw) : b.score?.isHold ? 0 : -1;
         if (scoreB !== scoreA) return scoreB - scoreA;
       } else if (sortBy === 'status') {
-        const statA = (a.linkedInStatus || a.stage || '').toLowerCase();
-        const statB = (b.linkedInStatus || b.stage || '').toLowerCase();
+        const statA = (a.linkedInStatus || a.stage || '').trim();
+        const statB = (b.linkedInStatus || b.stage || '').trim();
+        const isNoStatusA = !statA || statA.toLowerCase() === 'no status';
+        const isNoStatusB = !statB || statB.toLowerCase() === 'no status';
+        if (isNoStatusA && !isNoStatusB) return 1;
+        if (!isNoStatusA && isNoStatusB) return -1;
         const cmp = statA.localeCompare(statB);
         if (cmp !== 0) return cmp;
       }

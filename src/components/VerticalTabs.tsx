@@ -98,7 +98,7 @@ export function VerticalTabs({
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
       if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
         setIsSortOpen(false);
       }
@@ -112,10 +112,12 @@ export function VerticalTabs({
 
     if (isSortOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
       document.addEventListener('keydown', handleKeyDown);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isSortOpen]);
@@ -138,17 +140,17 @@ export function VerticalTabs({
   return (
     <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-md shadow-xs border-b border-outline-variant/60">
       <div
-        className="flex items-center gap-2.5 overflow-x-auto hide-scrollbar tab-fade-right px-4 md:px-8 py-2.5"
+        className="flex items-center gap-2.5 px-4 md:px-8 py-2.5"
         aria-label="Filter & Sort"
       >
-        {/* Simple & Clean Minimalist Sort Button (No heavy fill, no bulky button) */}
+        {/* Simple & Clean Minimalist Sort Button (Unclipped by horizontal scroll) */}
         <div className="relative flex-none" ref={sortRef}>
           <button
             type="button"
             onClick={() => setIsSortOpen((prev) => !prev)}
             aria-expanded={isSortOpen}
             aria-haspopup="listbox"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-300/80 shadow-2xs focus:outline-none focus:ring-2 focus:ring-primary select-none tap-bounce"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-300/80 shadow-2xs focus:outline-none focus:ring-2 focus:ring-primary select-none tap-bounce cursor-pointer"
             title="Sort leads"
           >
             <SlidersIcon className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
@@ -166,7 +168,7 @@ export function VerticalTabs({
             <div
               role="listbox"
               aria-label="Sort options"
-              className="absolute left-0 top-full mt-2 z-50 w-64 max-w-[85vw] bg-white rounded-2xl shadow-2xl border border-outline-variant/80 p-1.5 space-y-1 animate-fade-in max-h-[75vh] overflow-y-auto hide-scrollbar"
+              className="absolute left-0 top-full mt-2 z-50 w-60 max-w-[85vw] bg-white rounded-2xl shadow-2xl border border-outline-variant/80 p-1.5 space-y-1 animate-fade-in"
             >
               <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-secondary/70 border-b border-outline-variant/40 mb-1">
                 Sort Leads By
@@ -182,7 +184,7 @@ export function VerticalTabs({
                     role="option"
                     aria-selected={isSelected}
                     onClick={() => handleSortSelect(item.id)}
-                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-medium transition-colors text-left tap-bounce ${
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-medium transition-colors text-left tap-bounce cursor-pointer ${
                       isSelected
                         ? 'bg-blue-50 text-primary font-bold'
                         : 'text-on-surface hover:bg-gray-50'
@@ -211,28 +213,30 @@ export function VerticalTabs({
 
         <div className="h-4 w-[1px] bg-outline-variant/60 flex-none mx-0.5" aria-hidden="true" />
 
-        {/* Category Pills: Filled Solid Blue for Selected Active Tab */}
-        {CATEGORIES.map((cat) => {
-          const isActive = activeTab === cat.id;
+        {/* Category Pills: Horizontal scroll container */}
+        <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar tab-fade-right flex-1 py-0.5">
+          {CATEGORIES.map((cat) => {
+            const isActive = activeTab === cat.id;
 
-          return (
-            <button
-              key={cat.id}
-              onClick={() => handleTabClick(cat)}
-              className={`flex-none inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-primary tap-bounce ${
-                isActive
-                  ? 'bg-primary text-white border border-primary shadow-xs font-bold'
-                  : 'bg-white text-secondary hover:text-on-surface hover:border-outline border border-outline-variant/80'
-              }`}
-              aria-current={isActive ? 'page' : undefined}
-            >
-              <span className={isActive ? 'text-white' : 'text-secondary'}>
-                {cat.icon}
-              </span>
-              <span>{cat.label}</span>
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={cat.id}
+                onClick={() => handleTabClick(cat)}
+                className={`flex-none inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-primary tap-bounce cursor-pointer ${
+                  isActive
+                    ? 'bg-primary text-white border border-primary shadow-xs font-bold'
+                    : 'bg-white text-secondary hover:text-on-surface hover:border-outline border border-outline-variant/80'
+                }`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <span className={isActive ? 'text-white' : 'text-secondary'}>
+                  {cat.icon}
+                </span>
+                <span>{cat.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

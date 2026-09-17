@@ -11,10 +11,17 @@ import { CalendarIcon } from './icons';
 
 function formatCardDate(dateStr?: string | null): string | null {
   if (!dateStr) return null;
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    const [, , mm, dd] = match;
+    return `${dd}/${mm}`;
+  }
   const parsed = Date.parse(dateStr);
   if (!isNaN(parsed)) {
     const d = new Date(parsed);
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    return `${dd}/${mm}`;
   }
   return dateStr;
 }
@@ -59,18 +66,18 @@ export function LeadCard({ lead }: LeadCardProps) {
       }}
       aria-label={`View details for ${lead.role}`}
     >
-      {/* 1. Top Row: Status Badge, Date & Score Badge (No Category Tag) */}
+      {/* 1. Top Row: Score on left first, Status second, short Date (dd/mm) on right */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
+          <ScoreBadge score={lead.score} />
           <StatusBadge status={lead.linkedInStatus} />
-          {displayDate && (
-            <span className="inline-flex items-center gap-1.5 text-xs text-secondary font-medium bg-gray-50 px-2 py-0.5 rounded border border-outline-variant/60">
-              <CalendarIcon className="w-3.5 h-3.5 text-secondary/80 flex-shrink-0" />
-              <span>{displayDate}</span>
-            </span>
-          )}
         </div>
-        <ScoreBadge score={lead.score} />
+        {displayDate && (
+          <span className="inline-flex items-center gap-1.5 text-xs text-secondary font-medium bg-gray-50 px-2 py-0.5 rounded border border-outline-variant/60 flex-shrink-0">
+            <CalendarIcon className="w-3.5 h-3.5 text-secondary/80 flex-shrink-0" />
+            <span>{displayDate}</span>
+          </span>
+        )}
       </div>
 
       {/* 2. Role-First Visual Anchor & Candidate/Company Metadata */}
