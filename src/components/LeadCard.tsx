@@ -9,19 +9,19 @@ import { ContactLinks } from './ContactLinks';
 import { LinkedInAction } from './LinkedInAction';
 import { CalendarIcon } from './icons';
 
-const MONTH_NAMES = [
-  'JANUARY',
-  'FEBRUARY',
-  'MARCH',
-  'APRIL',
-  'MAY',
-  'JUNE',
-  'JULY',
-  'AUGUST',
-  'SEPTEMBER',
-  'OCTOBER',
-  'NOVEMBER',
-  'DECEMBER',
+const MONTH_ABBR = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sept',
+  'Oct',
+  'Nov',
+  'Dec',
 ];
 
 function formatCardDate(dateStr?: string | null): string | null {
@@ -30,16 +30,16 @@ function formatCardDate(dateStr?: string | null): string | null {
   if (match) {
     const [, , mm, dd] = match;
     const monthIndex = parseInt(mm, 10) - 1;
-    const monthName = MONTH_NAMES[monthIndex] || mm;
-    const day = String(parseInt(dd, 10)).padStart(2, '0');
-    return `${day}/${monthName}`;
+    const monthName = MONTH_ABBR[monthIndex] || mm;
+    const day = parseInt(dd, 10);
+    return `${day} ${monthName}`;
   }
   const parsed = Date.parse(dateStr);
   if (!isNaN(parsed)) {
     const d = new Date(parsed);
-    const day = String(d.getDate()).padStart(2, '0');
-    const monthName = MONTH_NAMES[d.getMonth()] || String(d.getMonth() + 1);
-    return `${day}/${monthName}`;
+    const day = d.getDate();
+    const monthName = MONTH_ABBR[d.getMonth()] || String(d.getMonth() + 1);
+    return `${day} ${monthName}`;
   }
   return dateStr;
 }
@@ -74,7 +74,7 @@ export function LeadCard({ lead }: LeadCardProps) {
   return (
     <article
       onClick={handleCardClick}
-      className="bg-white border border-outline-variant/80 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3.5 transition-all duration-150 hover:shadow-md hover:border-primary/40 active:scale-[0.99] cursor-pointer group select-none"
+      className="bg-white border border-outline-variant/80 rounded-2xl px-4 py-[18px] sm:px-5 sm:py-[22px] shadow-xs flex flex-col gap-3.5 transition-all duration-150 hover:shadow-md hover:border-primary/40 active:scale-[0.99] cursor-pointer group select-none"
       role="link"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -84,14 +84,14 @@ export function LeadCard({ lead }: LeadCardProps) {
       }}
       aria-label={`View details for ${lead.role}`}
     >
-      {/* 1. Top Row: Score on left first, Status second, short Date (dd/mm) on right */}
+      {/* 1. Top Row: Score on left first, Status second, date (16 Sept) on right */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <ScoreBadge score={lead.score} />
           <StatusBadge status={lead.linkedInStatus} />
         </div>
         {displayDate && (
-          <span className="inline-flex items-center gap-1.5 text-xs text-secondary font-medium bg-gray-50 px-2 py-0.5 rounded border border-outline-variant/60 flex-shrink-0">
+          <span className="inline-flex items-center gap-1.5 text-xs text-secondary font-medium bg-gray-50 px-2.5 py-1 rounded border border-outline-variant/60 flex-shrink-0">
             <CalendarIcon className="w-3.5 h-3.5 text-secondary/80 flex-shrink-0" />
             <span>{displayDate}</span>
           </span>
