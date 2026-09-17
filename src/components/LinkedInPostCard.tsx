@@ -266,19 +266,51 @@ export function LinkedInPostCard({ post, onShowNotice, onPostUpdated }: LinkedIn
 
               if (isTruncated && !isExpanded) {
                 return (
-                  <div className="text-[13.5px] sm:text-[14px] text-slate-900 leading-relaxed font-normal whitespace-pre-wrap break-words select-text">
-                    {snippet}
-                    <span>... </span>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsExpanded(true);
-                      }}
-                      className="text-slate-500 hover:text-slate-800 hover:underline font-semibold text-[13.5px] cursor-pointer inline-block"
-                    >
-                      more
-                    </button>
+                  <div className="space-y-1">
+                    <div className="text-[13.5px] sm:text-[14px] text-slate-900 leading-relaxed font-normal whitespace-pre-wrap break-words select-text">
+                      {snippet}
+                      <span>...</span>
+                    </div>
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsExpanded(true);
+                        }}
+                        className="text-slate-500 hover:text-primary font-medium text-xs py-0.5 px-2 rounded-md hover:bg-slate-100 transition-colors cursor-pointer inline-flex items-center gap-1"
+                      >
+                        <span>more</span>
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                );
+              }
+
+              if (isTruncated && isExpanded) {
+                return (
+                  <div className="space-y-1">
+                    <div className="text-[13.5px] sm:text-[14px] text-slate-900 leading-relaxed font-normal whitespace-pre-wrap break-words select-text">
+                      {post.fullCopy}
+                    </div>
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsExpanded(false);
+                        }}
+                        className="text-slate-500 hover:text-primary font-medium text-xs py-0.5 px-2 rounded-md hover:bg-slate-100 transition-colors cursor-pointer inline-flex items-center gap-1"
+                      >
+                        <span>less</span>
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="18 15 12 9 6 15" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 );
               }
