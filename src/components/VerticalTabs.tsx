@@ -4,15 +4,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   VideoIcon,
   TrendingUpIcon,
-  GlobeIcon,
-  CpuIcon,
   StarIcon,
   CalendarIcon,
   ChevronDownIcon,
   CheckIcon,
 } from './icons';
 
-export type CategoryTabId = 'ai_video' | 'gtm' | 'aeo_geo' | 'ai_automation';
+export type CategoryTabId = 'ai_video' | 'gtm';
 export type SortOption = 'score' | 'date';
 
 interface CategoryTab {
@@ -34,18 +32,6 @@ const CATEGORIES: CategoryTab[] = [
     label: 'GTM & Sales',
     enabled: true,
     icon: <TrendingUpIcon className="w-3.5 h-3.5" />,
-  },
-  {
-    id: 'aeo_geo',
-    label: 'AEO/GEO',
-    enabled: false,
-    icon: <GlobeIcon className="w-3.5 h-3.5" />,
-  },
-  {
-    id: 'ai_automation',
-    label: 'AI Automation',
-    enabled: false,
-    icon: <CpuIcon className="w-3.5 h-3.5" />,
   },
 ];
 
@@ -119,22 +105,22 @@ export function VerticalTabs({
             onClick={() => setIsSortOpen((prev) => !prev)}
             aria-expanded={isSortOpen}
             aria-haspopup="listbox"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all border border-primary text-primary bg-blue-50/80 shadow-xs hover:bg-blue-100/80 focus:outline-none focus:ring-2 focus:ring-primary select-none tap-bounce"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all border border-outline-variant/80 bg-white text-secondary hover:text-on-surface hover:border-outline shadow-2xs focus:outline-none focus:ring-2 focus:ring-primary select-none tap-bounce"
             title="Sort leads"
           >
             {sortBy === 'date' ? (
               <>
                 <CalendarIcon className="w-3.5 h-3.5 text-primary" />
-                <span>Sort: Date ↓</span>
+                <span className="text-on-surface font-semibold">Sort: Date ↓</span>
               </>
             ) : (
               <>
                 <StarIcon className="w-3.5 h-3.5 text-primary fill-primary/20" />
-                <span>Sort: Score ↓</span>
+                <span className="text-on-surface font-semibold">Sort: Score ↓</span>
               </>
             )}
             <ChevronDownIcon
-              className={`w-3.5 h-3.5 text-primary transition-transform duration-200 ${
+              className={`w-3.5 h-3.5 text-secondary transition-transform duration-200 ${
                 isSortOpen ? 'rotate-180' : ''
               }`}
             />
@@ -206,43 +192,25 @@ export function VerticalTabs({
 
         <div className="h-4 w-[1px] bg-outline-variant/60 flex-none mx-0.5" aria-hidden="true" />
 
-        {/* Category Pills (Without 'All' button) */}
+        {/* Category Pills: Filled Solid Blue for Selected Active Tab */}
         {CATEGORIES.map((cat) => {
           const isActive = activeTab === cat.id;
-
-          if (cat.enabled) {
-            return (
-              <button
-                key={cat.id}
-                onClick={() => handleTabClick(cat)}
-                className={`flex-none inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-primary tap-bounce ${
-                  isActive
-                    ? 'border border-primary text-primary bg-blue-50/80 shadow-xs font-bold'
-                    : 'border border-outline-variant/80 bg-white text-secondary hover:text-on-surface hover:border-outline'
-                }`}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                <span className={isActive ? 'text-primary' : 'text-secondary'}>
-                  {cat.icon}
-                </span>
-                <span>{cat.label}</span>
-              </button>
-            );
-          }
 
           return (
             <button
               key={cat.id}
               onClick={() => handleTabClick(cat)}
-              className="flex-none inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-secondary/60 bg-gray-50/80 border border-outline-variant/50 whitespace-nowrap transition-colors cursor-not-allowed group focus:outline-none"
-              aria-disabled="true"
-              title={`${cat.label} (Coming soon)`}
+              className={`flex-none inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-primary tap-bounce ${
+                isActive
+                  ? 'bg-primary text-white border border-primary shadow-xs font-bold'
+                  : 'bg-white text-secondary hover:text-on-surface hover:border-outline border border-outline-variant/80'
+              }`}
+              aria-current={isActive ? 'page' : undefined}
             >
-              <span className="opacity-60">{cat.icon}</span>
-              <span>{cat.label}</span>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-1 py-0.2 rounded bg-gray-200/70 text-gray-500">
-                Soon
+              <span className={isActive ? 'text-white' : 'text-secondary'}>
+                {cat.icon}
               </span>
+              <span>{cat.label}</span>
             </button>
           );
         })}
@@ -250,5 +218,6 @@ export function VerticalTabs({
     </div>
   );
 }
+
 
 
