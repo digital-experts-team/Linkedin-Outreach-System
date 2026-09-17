@@ -19,7 +19,7 @@ function getLeadTimestamp(lead: Lead): number {
 
 export default function LeadsPage() {
   const [activeTab, setActiveTab] = useState<CategoryTabId>('ai_video');
-  const [sortBy, setSortBy] = useState<SortOption>('date');
+  const [sortBy, setSortBy] = useState<SortOption>('date_desc');
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
@@ -94,18 +94,38 @@ export default function LeadsPage() {
     }
   };
 
-  // Sort leads based on active sort pill
+  // Sort leads based on active sort mode (Date, Score, Status Up/Down)
   const displayedLeads = useMemo(() => {
     return [...leads].sort((a, b) => {
-      if (sortBy === 'date') {
+      if (sortBy === 'date_desc') {
         const dateA = getLeadTimestamp(a);
         const dateB = getLeadTimestamp(b);
-        if (dateB !== dateA) {
-          return dateB - dateA;
-        }
+        if (dateB !== dateA) return dateB - dateA;
+      } else if (sortBy === 'date_asc') {
+        const dateA = getLeadTimestamp(a);
+        const dateB = getLeadTimestamp(b);
+        if (dateA !== dateB) return dateA - dateB;
+      } else if (sortBy === 'score_desc') {
+        const scoreA = a.score?.isNumeric ? parseFloat(a.score.raw) : a.score?.isHold ? 0 : -1;
+        const scoreB = b.score?.isNumeric ? parseFloat(b.score.raw) : b.score?.isHold ? 0 : -1;
+        if (scoreB !== scoreA) return scoreB - scoreA;
+      } else if (sortBy === 'score_asc') {
+        const scoreA = a.score?.isNumeric ? parseFloat(a.score.raw) : a.score?.isHold ? 0 : 999;
+        const scoreB = b.score?.isNumeric ? parseFloat(b.score.raw) : b.score?.isHold ? 0 : 999;
+        if (scoreA !== scoreB) return scoreA - scoreB;
+      } else if (sortBy === 'status_asc') {
+        const statA = (a.linkedInStatus || '').toLowerCase();
+        const statB = (b.linkedInStatus || '').toLowerCase();
+        const cmp = statA.localeCompare(statB);
+        if (cmp !== 0) return cmp;
+      } else if (sortBy === 'status_desc') {
+        const statA = (a.linkedInStatus || '').toLowerCase();
+        const statB = (b.linkedInStatus || '').toLowerCase();
+        const cmp = statB.localeCompare(statA);
+        if (cmp !== 0) return cmp;
       }
 
-      // Sort by score (default or tiebreaker)
+      // Default tiebreaker: Score descending
       const scoreA = a.score?.isNumeric ? parseFloat(a.score.raw) : a.score?.isHold ? 0 : -1;
       const scoreB = b.score?.isNumeric ? parseFloat(b.score.raw) : b.score?.isHold ? 0 : -1;
       return scoreB - scoreA;

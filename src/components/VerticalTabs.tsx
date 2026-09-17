@@ -9,10 +9,17 @@ import {
   ChevronDownIcon,
   CheckIcon,
   SlidersIcon,
+  ArrowDownIcon,
 } from './icons';
 
 export type CategoryTabId = 'ai_video' | 'gtm';
-export type SortOption = 'score' | 'date';
+export type SortOption =
+  | 'date_desc'
+  | 'date_asc'
+  | 'score_desc'
+  | 'score_asc'
+  | 'status_asc'
+  | 'status_desc';
 
 interface CategoryTab {
   id: CategoryTabId;
@@ -35,6 +42,78 @@ const CATEGORIES: CategoryTab[] = [
     icon: <TrendingUpIcon className="w-3.5 h-3.5" />,
   },
 ];
+
+interface SortItemConfig {
+  id: SortOption;
+  label: string;
+  subtitle: string;
+  group: 'Date' | 'Score' | 'Status';
+  icon: React.ReactNode;
+}
+
+const SORT_OPTIONS: SortItemConfig[] = [
+  {
+    id: 'date_desc',
+    label: 'Date (Newest first) ↓',
+    subtitle: 'Latest post & signal date',
+    group: 'Date',
+    icon: <CalendarIcon className="w-4 h-4" />,
+  },
+  {
+    id: 'date_asc',
+    label: 'Date (Oldest first) ↑',
+    subtitle: 'Earliest post & signal date',
+    group: 'Date',
+    icon: <CalendarIcon className="w-4 h-4" />,
+  },
+  {
+    id: 'score_desc',
+    label: 'Score (Highest first) ↓',
+    subtitle: 'Top match candidates',
+    group: 'Score',
+    icon: <StarIcon className="w-4 h-4" />,
+  },
+  {
+    id: 'score_asc',
+    label: 'Score (Lowest first) ↑',
+    subtitle: 'Lowest fit scores',
+    group: 'Score',
+    icon: <StarIcon className="w-4 h-4" />,
+  },
+  {
+    id: 'status_asc',
+    label: 'Status (A → Z) ↑',
+    subtitle: 'Alphabetical pipeline stage',
+    group: 'Status',
+    icon: <SlidersIcon className="w-4 h-4" />,
+  },
+  {
+    id: 'status_desc',
+    label: 'Status (Z → A) ↓',
+    subtitle: 'Reverse alphabetical stage',
+    group: 'Status',
+    icon: <SlidersIcon className="w-4 h-4" />,
+  },
+];
+
+function getSortBadgeLabel(sortBy: SortOption): string {
+  switch (sortBy) {
+    case 'date_desc':
+      return 'Date ↓';
+    case 'date_asc':
+      return 'Date ↑';
+    case 'score_desc':
+      return 'Score ↓';
+    case 'score_asc':
+      return 'Score ↑';
+    case 'status_asc':
+      return 'Status A→Z';
+    case 'status_desc':
+      return 'Status Z→A';
+    default:
+      return 'Date ↓';
+  }
+}
 
 interface VerticalTabsProps {
   activeTab: CategoryTabId;
@@ -99,90 +178,76 @@ export function VerticalTabs({
         className="flex items-center gap-2.5 overflow-x-auto hide-scrollbar tab-fade-right px-4 md:px-8 py-2.5"
         aria-label="Filter & Sort"
       >
-        {/* Completely Redesigned Sort Control Widget (Distinct from Category Pills) */}
+        {/* Simple & Clean Minimalist Sort Button (No heavy fill, no bulky button) */}
         <div className="relative flex-none" ref={sortRef}>
           <button
             type="button"
             onClick={() => setIsSortOpen((prev) => !prev)}
             aria-expanded={isSortOpen}
             aria-haspopup="listbox"
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all bg-slate-900 hover:bg-slate-800 text-white shadow-xs border border-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 select-none tap-bounce"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-300/80 shadow-2xs focus:outline-none focus:ring-2 focus:ring-primary select-none tap-bounce"
             title="Sort leads"
           >
-            <SlidersIcon className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Sort</span>
-              <span className="font-bold text-white bg-slate-800 px-1.5 py-0.5 rounded text-[11px] border border-slate-700/80">
-                {sortBy === 'date' ? 'Date ↓' : 'Score ↓'}
-              </span>
-            </div>
+            <SlidersIcon className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+            <span className="text-secondary font-medium">Sort:</span>
+            <span className="font-bold text-on-surface">{getSortBadgeLabel(sortBy)}</span>
             <ChevronDownIcon
-              className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+              className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
                 isSortOpen ? 'rotate-180' : ''
               }`}
             />
           </button>
 
-          {/* Floating Dropdown Menu */}
+          {/* Floating Dropdown Menu (Optimized for Mobile & Desktop) */}
           {isSortOpen && (
             <div
               role="listbox"
               aria-label="Sort options"
-              className="absolute left-0 top-full mt-2 z-50 min-w-[210px] bg-white rounded-2xl shadow-xl border border-outline-variant/80 p-1.5 space-y-1 animate-fade-in"
+              className="absolute left-0 top-full mt-2 z-50 w-64 max-w-[85vw] bg-white rounded-2xl shadow-2xl border border-outline-variant/80 p-1.5 space-y-1 animate-fade-in max-h-[75vh] overflow-y-auto hide-scrollbar"
             >
-              <div className="px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-secondary/70 border-b border-outline-variant/40 mb-1">
+              <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-secondary/70 border-b border-outline-variant/40 mb-1">
                 Sort Leads By
               </div>
 
-              {/* Option 1: Date */}
-              <button
-                type="button"
-                role="option"
-                aria-selected={sortBy === 'date'}
-                onClick={() => handleSortSelect('date')}
-                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-medium transition-colors text-left tap-bounce ${
-                  sortBy === 'date'
-                    ? 'bg-blue-50 text-primary font-semibold'
-                    : 'text-on-surface hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <CalendarIcon
-                    className={`w-4 h-4 ${sortBy === 'date' ? 'text-primary' : 'text-secondary'}`}
-                  />
-                  <div>
-                    <div className="leading-snug">Date (Newest first)</div>
-                    <div className="text-[10px] text-secondary font-normal">Recent signal / post date</div>
-                  </div>
-                </div>
-                {sortBy === 'date' && <CheckIcon className="w-4 h-4 text-primary stroke-[2.5] flex-shrink-0" />}
-              </button>
+              {SORT_OPTIONS.map((item, index) => {
+                const isSelected = sortBy === item.id;
+                const isFirstOfGroup =
+                  index === 0 || SORT_OPTIONS[index - 1].group !== item.group;
 
-              {/* Option 2: Score */}
-              <button
-                type="button"
-                role="option"
-                aria-selected={sortBy === 'score'}
-                onClick={() => handleSortSelect('score')}
-                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-medium transition-colors text-left tap-bounce ${
-                  sortBy === 'score'
-                    ? 'bg-blue-50 text-primary font-semibold'
-                    : 'text-on-surface hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <StarIcon
-                    className={`w-4 h-4 ${
-                      sortBy === 'score' ? 'text-primary fill-primary/20' : 'text-secondary'
-                    }`}
-                  />
-                  <div>
-                    <div className="leading-snug">Score (Highest first)</div>
-                    <div className="text-[10px] text-secondary font-normal">Lead match fit score</div>
-                  </div>
-                </div>
-                {sortBy === 'score' && <CheckIcon className="w-4 h-4 text-primary stroke-[2.5] flex-shrink-0" />}
-              </button>
+                return (
+                  <React.Fragment key={item.id}>
+                    {isFirstOfGroup && index !== 0 && (
+                      <div className="h-[1px] bg-outline-variant/40 my-1 mx-2" />
+                    )}
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={isSelected}
+                      onClick={() => handleSortSelect(item.id)}
+                      className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-medium transition-colors text-left tap-bounce ${
+                        isSelected
+                          ? 'bg-blue-50 text-primary font-bold'
+                          : 'text-on-surface hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <span className={isSelected ? 'text-primary' : 'text-secondary'}>
+                          {item.icon}
+                        </span>
+                        <div>
+                          <div className="leading-snug">{item.label}</div>
+                          <div className="text-[10px] text-secondary font-normal">
+                            {item.subtitle}
+                          </div>
+                        </div>
+                      </div>
+                      {isSelected && (
+                        <CheckIcon className="w-4 h-4 text-primary stroke-[2.5] flex-shrink-0" />
+                      )}
+                    </button>
+                  </React.Fragment>
+                );
+              })}
             </div>
           )}
         </div>
@@ -215,6 +280,7 @@ export function VerticalTabs({
     </div>
   );
 }
+
 
 
 
