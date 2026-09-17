@@ -7,6 +7,17 @@ import { StatusBadge } from './StatusBadge';
 import { ScoreBadge } from './ScoreBadge';
 import { ContactLinks } from './ContactLinks';
 import { LinkedInAction } from './LinkedInAction';
+import { CalendarIcon } from './icons';
+
+function formatCardDate(dateStr?: string | null): string | null {
+  if (!dateStr) return null;
+  const parsed = Date.parse(dateStr);
+  if (!isNaN(parsed)) {
+    const d = new Date(parsed);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+  return dateStr;
+}
 
 interface LeadCardProps {
   lead: Lead;
@@ -15,6 +26,8 @@ interface LeadCardProps {
 export function LeadCard({ lead }: LeadCardProps) {
   const router = useRouter();
   const hasSubtitle = lead.postedBy || lead.company;
+  const rawDate = lead.posted || lead.signalDate || lead.sendDate || lead.commentDate;
+  const displayDate = formatCardDate(rawDate);
 
   const handleCardClick = (e: React.MouseEvent) => {
     // If user clicked inside an interactive button, link, or input, don't navigate
@@ -33,8 +46,6 @@ export function LeadCard({ lead }: LeadCardProps) {
     lead.postSummary ||
     '';
 
-  const isAiVideo = lead.verticalId === 'ai_video';
-
   return (
     <article
       onClick={handleCardClick}
@@ -48,19 +59,16 @@ export function LeadCard({ lead }: LeadCardProps) {
       }}
       aria-label={`View details for ${lead.role}`}
     >
-      {/* 1. Top Tag Row: Category Pill, Status Badge & Score Badge */}
+      {/* 1. Top Row: Status Badge, Date & Score Badge (No Category Tag) */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <span
-            className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${
-              isAiVideo
-                ? 'text-indigo-700 bg-indigo-100/80'
-                : 'text-primary bg-blue-100/70'
-            }`}
-          >
-            {lead.verticalLabel}
-          </span>
           <StatusBadge status={lead.linkedInStatus} />
+          {displayDate && (
+            <span className="inline-flex items-center gap-1.5 text-xs text-secondary font-medium bg-gray-50 px-2 py-0.5 rounded border border-outline-variant/60">
+              <CalendarIcon className="w-3.5 h-3.5 text-secondary/80 flex-shrink-0" />
+              <span>{displayDate}</span>
+            </span>
+          )}
         </div>
         <ScoreBadge score={lead.score} />
       </div>
