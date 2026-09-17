@@ -630,7 +630,6 @@ export async function updateLinkedInPostInNotion(
     status?: string;
     scheduledDate?: string | null;
     name?: string;
-    vertical?: string;
   }
 ): Promise<{ success: boolean; post?: LinkedInPost; error?: any }> {
   const token = process.env.NOTION_TOKEN?.trim();
@@ -689,14 +688,6 @@ export async function updateLinkedInPostInNotion(
             },
           },
         ],
-      };
-    }
-
-    if (updates.vertical !== undefined && updates.vertical) {
-      propertiesToUpdate['Vertical'] = {
-        select: {
-          name: updates.vertical,
-        },
       };
     }
 

@@ -26,8 +26,6 @@ const STATUS_OPTIONS = [
   { label: 'Archived', value: 'Archived', color: 'bg-slate-100 text-slate-700 border-slate-200' },
 ];
 
-const VERTICAL_OPTIONS = ['GTM', 'AI Video'];
-
 export default function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const id = resolvedParams.id;
@@ -93,7 +91,6 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
           fullCopy,
           status,
           scheduledDate: scheduledDate || null,
-          vertical,
         }),
       });
 
@@ -311,30 +308,25 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
               </div>
             </section>
 
-            {/* 3. Vertical Selection */}
-            <section className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs space-y-2.5">
-              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <span>📁</span>
-                <span>Vertical / Track</span>
-              </label>
-              <div className="flex items-center gap-2">
-                {VERTICAL_OPTIONS.map((v) => {
-                  const isSelected = vertical.toLowerCase() === v.toLowerCase();
-                  return (
-                    <button
-                      key={v}
-                      type="button"
-                      onClick={() => setVertical(v)}
-                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold border transition-all text-center cursor-pointer tap-bounce ${
-                        isSelected
-                          ? 'bg-blue-50 text-blue-700 border-blue-300 font-bold ring-1 ring-blue-400/40 shadow-xs'
-                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                      }`}
-                    >
-                      {v}
-                    </button>
-                  );
-                })}
+            {/* 3. Vertical (Read-only metadata) */}
+            <section className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <span>📁</span>
+                  <span>Vertical Track</span>
+                </label>
+                <span className="text-[11px] text-slate-400 font-medium flex items-center gap-1">
+                  <span>🔒</span>
+                  <span>Read-only</span>
+                </span>
+              </div>
+              <div className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200/70">
+                <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                  {vertical || 'General'}
+                </span>
+                <span className="text-xs text-slate-500">
+                  Assigned in Notion Content Hub
+                </span>
               </div>
             </section>
 
