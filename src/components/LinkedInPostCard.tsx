@@ -35,8 +35,36 @@ function formatPostDisplayDate(dateStr?: string | null): string {
   return dateStr;
 }
 
+/**
+ * Truncates text based on LinkedIn feed parameters (max 3 lines or ~180-210 characters).
+ */
+function getLinkedInSnippet(text: string, maxLines = 3, maxChars = 200): { isTruncated: boolean; snippet: string } {
+  if (!text) return { isTruncated: false, snippet: '' };
+
+  const lines = text.split('\n');
+  if (lines.length > maxLines) {
+    const firstLines = lines.slice(0, maxLines).join('\n');
+    return {
+      isTruncated: true,
+      snippet: firstLines,
+    };
+  }
+
+  if (text.length > maxChars) {
+    let sliceIdx = text.lastIndexOf(' ', maxChars);
+    if (sliceIdx < maxChars - 40) sliceIdx = maxChars;
+    return {
+      isTruncated: true,
+      snippet: text.slice(0, sliceIdx).trim(),
+    };
+  }
+
+  return { isTruncated: false, snippet: text };
+}
+
 export function LinkedInPostCard({ post, onShowNotice, onPostUpdated }: LinkedInPostCardProps) {
   const [copied, setCopied] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentText, setCurrentText] = useState(post.fullCopy || '');
   const [isSaving, setIsSaving] = useState(false);
@@ -230,9 +258,37 @@ export function LinkedInPostCard({ post, onShowNotice, onPostUpdated }: LinkedIn
               </div>
             </div>
           ) : (
-            <div className="text-[13.5px] sm:text-[14px] text-slate-900 leading-relaxed font-normal whitespace-pre-wrap break-words select-text">
-              {post.fullCopy || <p className="text-secondary italic">No post copy written yet.</p>}
-            </div>
+            (() => {
+              if (!post.fullCopy) {
+                return <p className="text-secondary italic">No post copy written yet.</p>;
+              }
+              const { isTruncated, snippet } = getLinkedInSnippet(post.fullCopy, 3, 200);
+
+              if (isTruncated && !isExpanded) {
+                return (
+                  <div className="text-[13.5px] sm:text-[14px] text-slate-900 leading-relaxed font-normal whitespace-pre-wrap break-words select-text">
+                    {snippet}
+                    <span>... </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsExpanded(true);
+                      }}
+                      className="text-slate-500 hover:text-slate-800 hover:underline font-semibold text-[13.5px] cursor-pointer inline-block"
+                    >
+                      more
+                    </button>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="text-[13.5px] sm:text-[14px] text-slate-900 leading-relaxed font-normal whitespace-pre-wrap break-words select-text">
+                  {post.fullCopy}
+                </div>
+              );
+            })()
           )}
         </div>
 
