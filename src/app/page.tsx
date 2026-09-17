@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Lead, LeadsApiResponse } from '@/types/lead';
 import { AppHeader } from '@/components/AppHeader';
 import { VerticalTabs, CategoryTabId } from '@/components/VerticalTabs';
@@ -12,6 +12,7 @@ import { SyncIcon } from '@/components/icons';
 
 export default function LeadsPage() {
   const [activeTab, setActiveTab] = useState<CategoryTabId>('all');
+  const [isScoreSorted, setIsScoreSorted] = useState<boolean>(true);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
@@ -82,28 +83,46 @@ export default function LeadsPage() {
     setActiveTab(tabId);
   };
 
+  const handleToggleScoreSort = () => {
+    setIsScoreSorted((prev) => !prev);
+  };
+
   const handleLoadMore = () => {
     if (nextCursor && !loadingMore) {
       fetchLeads(activeTab, nextCursor);
     }
   };
 
+  // Sort leads based on active sort pill
+  const displayedLeads = useMemo(() => {
+    if (!isScoreSorted) {
+      return leads;
+    }
+    return [...leads].sort((a, b) => {
+      const scoreA = a.score?.isNumeric ? parseFloat(a.score.raw) : a.score?.isHold ? 0 : -1;
+      const scoreB = b.score?.isNumeric ? parseFloat(b.score.raw) : b.score?.isHold ? 0 : -1;
+      return scoreB - scoreA;
+    });
+  }, [leads, isScoreSorted]);
+
   return (
     <div className="min-h-screen flex flex-col bg-background text-on-surface">
-      {/* 1. Fixed Top Header */}
+      {/* 1. Minimalist Utility-Driven Top Header (No Brand Title) */}
       <AppHeader onShowNotice={setNotice} />
 
       {/* 2. Main Content Area with padding offsets */}
-      <div className="pt-16 pb-24 flex-1 flex flex-col">
-        {/* Sticky Sub-Header with Category Tabs */}
+      <div className="pt-14 pb-24 flex-1 flex flex-col">
+        {/* Sticky Filter & Sort Row */}
         <VerticalTabs
           activeTab={activeTab}
           onSelectTab={handleTabChange}
+          isScoreSorted={isScoreSorted}
+          onToggleScoreSort={handleToggleScoreSort}
           onShowNotice={setNotice}
         />
 
         {/* Lead List Canvas */}
-        <main className="flex-1 max-w-5xl w-full mx-auto px-4 md:px-8 py-6 space-y-4">
+        <main className="flex-1 max-w-5xl w-full mx-auto px-4 md:px-8 py-5 space-y-4">
           {loading && <LoadingState />}
 
           {!loading && error?.code === 'CONFIG_REQUIRED' && (
@@ -118,14 +137,14 @@ export default function LeadsPage() {
             />
           )}
 
-          {!loading && !error && leads.length === 0 && (
+          {!loading && !error && displayedLeads.length === 0 && (
             <EmptyState onRetry={() => fetchLeads(activeTab)} />
           )}
 
-          {!loading && !error && leads.length > 0 && (
+          {!loading && !error && displayedLeads.length > 0 && (
             <>
               <div className="space-y-4">
-                {leads.map((lead) => (
+                {displayedLeads.map((lead) => (
                   <LeadCard key={lead.id} lead={lead} />
                 ))}
               </div>
@@ -153,7 +172,7 @@ export default function LeadsPage() {
         </main>
       </div>
 
-      {/* 3. Fixed Bottom Navigation */}
+      {/* 3. Fixed Bottom Navigation Bar */}
       <BottomNavigation onShowNotice={setNotice} />
 
       {/* 4. Accessible Toast Announcements */}

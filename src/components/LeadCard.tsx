@@ -25,10 +25,20 @@ export function LeadCard({ lead }: LeadCardProps) {
     router.push(`/leads/${lead.id}`);
   };
 
+  // Determine insight / scraped trigger hook text
+  const triggerHook =
+    lead.signalSnippet ||
+    (lead.verticalId === 'ai_video' ? lead.whySignalApt : null) ||
+    lead.linkedInDm ||
+    lead.postSummary ||
+    '';
+
+  const isAiVideo = lead.verticalId === 'ai_video';
+
   return (
     <article
       onClick={handleCardClick}
-      className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm flex flex-col gap-3 transition-all hover:shadow-md hover:border-primary/40 cursor-pointer group"
+      className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm flex flex-col gap-3.5 transition-all hover:shadow-md hover:border-primary/40 cursor-pointer group"
       role="link"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -38,10 +48,16 @@ export function LeadCard({ lead }: LeadCardProps) {
       }}
       aria-label={`View details for ${lead.role}`}
     >
-      {/* Top Header Row: Category Badge, Status Badge & Score Badge */}
+      {/* 1. Top Tag Row: Category Pill, Status Badge & Score Badge */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-primary bg-blue-100/70 px-2 py-0.5 rounded">
+          <span
+            className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded ${
+              isAiVideo
+                ? 'text-indigo-700 bg-indigo-100/80'
+                : 'text-primary bg-blue-100/70'
+            }`}
+          >
             {lead.verticalLabel}
           </span>
           <StatusBadge status={lead.linkedInStatus} />
@@ -49,32 +65,34 @@ export function LeadCard({ lead }: LeadCardProps) {
         <ScoreBadge score={lead.score} />
       </div>
 
-      {/* Role Heading and Subtitle */}
+      {/* 2. Role-First Visual Anchor & Candidate/Company Metadata */}
       <div>
-        <h3 className="text-lg md:text-xl font-bold text-on-surface leading-tight group-hover:text-primary transition-colors">
+        <h3 className="text-lg md:text-xl font-bold text-on-surface leading-snug tracking-tight group-hover:text-primary transition-colors">
           {lead.role}
         </h3>
         {hasSubtitle && (
-          <p className="text-sm text-secondary mt-0.5">
+          <p className="text-sm text-secondary mt-1 font-normal">
             {lead.postedBy && (
-              <span className="font-bold text-on-surface">{lead.postedBy}</span>
+              <span className="font-semibold text-on-surface">{lead.postedBy}</span>
             )}
             {lead.postedBy && lead.company && (
-              <span className="mx-1 select-none text-outline-variant">·</span>
+              <span className="mx-1.5 select-none text-outline-variant">·</span>
             )}
             {lead.company && <span>{lead.company}</span>}
           </p>
         )}
       </div>
 
-      {/* Inset Message Quote Preview */}
-      <div className="border-l-2 border-primary/30 pl-3 py-1.5 my-0.5 bg-surface-container-low/50 rounded-r-lg">
-        <p className="text-sm text-on-surface-variant line-clamp-2 italic leading-relaxed">
-          {lead.linkedInDm ? `"${lead.linkedInDm}"` : 'No LinkedIn message available.'}
-        </p>
-      </div>
+      {/* 3. Insight / Scraped Trigger Hook */}
+      {triggerHook && (
+        <div className="border-l-2 border-primary/40 pl-3.5 py-2 my-0.5 bg-surface-container-low/60 rounded-r-lg">
+          <p className="text-sm text-on-surface-variant line-clamp-2 italic leading-relaxed">
+            "{triggerHook}"
+          </p>
+        </div>
+      )}
 
-      {/* Contact Links Row */}
+      {/* 4. Single-Line Contact Availability (Icons & Labels Only) */}
       <div onClick={(e) => e.stopPropagation()}>
         <ContactLinks
           email={lead.primaryContactEmail}
@@ -83,9 +101,9 @@ export function LeadCard({ lead }: LeadCardProps) {
         />
       </div>
 
-      {/* Divider and Primary CTA */}
+      {/* 5. Card Action CTA (Outlined 2px Primary Blue Button) */}
       <div
-        className="pt-2 border-t border-outline-variant/60 flex justify-end"
+        className="pt-2 border-t border-outline-variant/50 flex w-full"
         onClick={(e) => e.stopPropagation()}
       >
         <LinkedInAction

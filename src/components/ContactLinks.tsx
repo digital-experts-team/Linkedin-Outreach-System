@@ -15,8 +15,8 @@ export function ContactLinks({ email, phone, linkedInUrl }: ContactLinksProps) {
       <a
         key="email"
         href={`mailto:${email}`}
-        className="inline-flex items-center gap-1 text-secondary hover:text-primary transition-colors text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 rounded"
-        title={`Send email to ${email}`}
+        className="inline-flex items-center gap-1.5 text-secondary hover:text-primary transition-colors text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary rounded py-0.5"
+        title="Email available"
       >
         <MailIcon className="w-3.5 h-3.5" />
         <span>Email</span>
@@ -29,8 +29,8 @@ export function ContactLinks({ email, phone, linkedInUrl }: ContactLinksProps) {
       <a
         key="phone"
         href={`tel:${phone}`}
-        className="inline-flex items-center gap-1 text-secondary hover:text-primary transition-colors text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 rounded"
-        title={`Call ${phone}`}
+        className="inline-flex items-center gap-1.5 text-secondary hover:text-primary transition-colors text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary rounded py-0.5"
+        title="Phone available"
       >
         <PhoneIcon className="w-3.5 h-3.5" />
         <span>Phone</span>
@@ -45,8 +45,8 @@ export function ContactLinks({ email, phone, linkedInUrl }: ContactLinksProps) {
         href={linkedInUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1 text-secondary hover:text-primary transition-colors text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 rounded"
-        title="Open LinkedIn Profile"
+        className="inline-flex items-center gap-1.5 text-secondary hover:text-primary transition-colors text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary rounded py-0.5"
+        title="LinkedIn profile available"
       >
         <LinkIcon className="w-3.5 h-3.5" />
         <span>LinkedIn</span>
@@ -59,7 +59,7 @@ export function ContactLinks({ email, phone, linkedInUrl }: ContactLinksProps) {
   }
 
   return (
-    <div className="flex items-center gap-2.5 overflow-x-auto py-1 text-secondary text-xs whitespace-nowrap">
+    <div className="flex items-center gap-2.5 overflow-x-auto hide-scrollbar py-0.5 text-secondary text-xs whitespace-nowrap">
       {items.map((item, index) => (
         <React.Fragment key={index}>
           {index > 0 && <span className="text-outline-variant select-none" aria-hidden="true">•</span>}

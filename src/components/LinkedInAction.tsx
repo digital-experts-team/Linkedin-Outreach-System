@@ -1,7 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { SendIcon, CheckIcon, CopyIcon, ExternalLinkIcon, CloseIcon, AlertCircleIcon } from './icons';
+import {
+  PlayOutlineIcon,
+  CheckIcon,
+  CopyIcon,
+  ExternalLinkIcon,
+  CloseIcon,
+  AlertCircleIcon,
+} from './icons';
 
 interface LinkedInActionProps {
   message: string;
@@ -29,7 +36,6 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
           await navigator.clipboard.writeText(message);
           copySuccessful = true;
         } else {
-          // Fallback if clipboard API not available in current context
           const textArea = document.createElement('textarea');
           textArea.value = message;
           textArea.style.position = 'fixed';
@@ -67,7 +73,6 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
         }
       }
     } else {
-      // If automatic copy fails, show fallback modal for manual copy before opening
       setShowFallbackModal(true);
     }
   };
@@ -111,10 +116,10 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
       <button
         disabled
         aria-disabled="true"
-        className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-200 text-gray-400 font-semibold text-sm rounded-lg cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 border-2 border-gray-200 text-gray-400 font-semibold text-sm rounded-lg cursor-not-allowed"
       >
-        <SendIcon className="w-4 h-4" />
-        <span>No DM or LinkedIn Profile</span>
+        <PlayOutlineIcon className="w-4 h-4" />
+        <span>▷ LinkedIn connect (No URL)</span>
       </button>
     );
   }
@@ -122,25 +127,25 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
   // If URL missing but message exists: provide Copy message action
   if (!hasValidUrl && hasMessage) {
     return (
-      <div className="flex flex-col items-end gap-1.5 w-full md:w-auto">
+      <div className="flex flex-col items-stretch w-full">
         <button
           onClick={handleOnlyCopy}
-          className={`w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm ${
+          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all border-2 ${
             copied
-              ? 'bg-green-600 text-white'
-              : 'bg-primary text-on-primary hover:opacity-90 active:scale-95'
+              ? 'border-green-600 bg-green-50 text-green-700'
+              : 'border-primary bg-white text-primary hover:bg-blue-50/50 active:scale-[0.99]'
           }`}
           title="Profile URL missing. Click to copy message."
         >
           {copied ? (
             <>
-              <CheckIcon className="w-4 h-4" />
+              <CheckIcon className="w-4 h-4 text-green-600" />
               <span>{feedbackText}</span>
             </>
           ) : (
             <>
               <CopyIcon className="w-4 h-4" />
-              <span>Copy Message (No Profile URL)</span>
+              <span>Copy Message Draft</span>
             </>
           )}
         </button>
@@ -155,35 +160,35 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
         href={linkedInUrl!}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-on-primary font-semibold text-sm rounded-lg hover:opacity-90 active:scale-95 transition-all shadow-sm"
+        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border-2 border-primary text-primary hover:bg-blue-50/50 font-semibold text-sm rounded-lg active:scale-[0.99] transition-all shadow-xs"
       >
-        <ExternalLinkIcon className="w-4 h-4" />
-        <span>Open LinkedIn Profile</span>
+        <PlayOutlineIcon className="w-4 h-4" />
+        <span>▷ LinkedIn connect</span>
       </a>
     );
   }
 
   return (
     <>
-      <div className="flex flex-col items-stretch md:items-end gap-2 w-full md:w-auto">
+      <div className="flex flex-col items-stretch gap-2 w-full">
         <button
           onClick={handleCombinedAction}
-          className={`w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all border-2 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 shadow-xs ${
             copied
-              ? 'bg-green-600 text-white'
-              : 'bg-primary text-on-primary hover:opacity-90 active:scale-95'
+              ? 'border-green-600 bg-green-50 text-green-700'
+              : 'border-primary bg-white text-primary hover:bg-blue-50/60'
           }`}
-          aria-label="Copy message and open LinkedIn profile in a new tab"
+          aria-label="Copy AI pitch draft and connect on LinkedIn"
         >
           {copied ? (
             <>
-              <CheckIcon className="w-4 h-4" />
+              <CheckIcon className="w-4 h-4 text-green-600" />
               <span>{feedbackText}</span>
             </>
           ) : (
             <>
-              <SendIcon className="w-4 h-4" />
-              <span>Copy &amp; Message on LinkedIn</span>
+              <PlayOutlineIcon className="w-4 h-4 text-primary" />
+              <span>▷ LinkedIn connect</span>
             </>
           )}
         </button>
@@ -216,7 +221,7 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
             <div className="flex items-center justify-between">
               <h3 id="copy-fallback-title" className="text-lg font-bold text-on-surface flex items-center gap-2">
                 <AlertCircleIcon className="w-5 h-5 text-primary" />
-                Message Text
+                Pitch Message Draft
               </h3>
               <button
                 onClick={() => setShowFallbackModal(false)}
@@ -228,7 +233,7 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
             </div>
 
             <p className="text-sm text-secondary">
-              Automatic clipboard copy was restricted by your browser. You can select and copy the text below:
+              Automatic clipboard copy was restricted by your browser. Select and copy the text below:
             </p>
 
             <textarea
