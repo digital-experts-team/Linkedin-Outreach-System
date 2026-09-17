@@ -85,8 +85,8 @@ export function LeadCard({ lead }: LeadCardProps) {
 
       {/* 3. Insight / Scraped Trigger Hook */}
       {triggerHook && (
-        <div className="border-l-2 border-primary/40 pl-3.5 py-2 my-0.5 bg-surface-container-low/60 rounded-r-lg">
-          <p className="text-sm text-on-surface-variant line-clamp-2 italic leading-relaxed">
+        <div className="border-l-2 border-primary/50 pl-3.5 py-2 my-0.5 bg-surface-container-low/70 rounded-r-lg">
+          <p className="text-[15px] md:text-base text-on-surface line-clamp-2 font-medium leading-relaxed">
             "{triggerHook}"
           </p>
         </div>
