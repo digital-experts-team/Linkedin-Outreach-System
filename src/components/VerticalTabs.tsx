@@ -173,7 +173,7 @@ export function VerticalTabs({
   };
 
   return (
-    <div className="sticky top-14 z-30 bg-white/90 backdrop-blur-md shadow-xs border-b border-outline-variant/60">
+    <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-md shadow-xs border-b border-outline-variant/60">
       <div
         className="flex items-center gap-2.5 overflow-x-auto hide-scrollbar tab-fade-right px-4 md:px-8 py-2.5"
         aria-label="Filter & Sort"

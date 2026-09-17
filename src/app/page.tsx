@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Lead, LeadsApiResponse } from '@/types/lead';
-import { AppHeader } from '@/components/AppHeader';
 import { VerticalTabs, CategoryTabId, SortOption } from '@/components/VerticalTabs';
 import { LeadCard } from '@/components/LeadCard';
 import { BottomNavigation } from '@/components/BottomNavigation';
@@ -134,12 +133,9 @@ export default function LeadsPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-on-surface">
-      {/* 1. Minimalist Utility-Driven Top Header (No Brand Title) */}
-      <AppHeader onShowNotice={setNotice} />
-
-      {/* 2. Main Content Area with padding offsets */}
-      <div className="pt-14 pb-28 sm:pb-24 flex-1 flex flex-col">
-        {/* Sticky Filter & Sort Row */}
+      {/* Main Content Area */}
+      <div className="pb-28 sm:pb-24 flex-1 flex flex-col">
+        {/* Sticky Filter & Sort Row (Topmost bar) */}
         <VerticalTabs
           activeTab={activeTab}
           onSelectTab={handleTabChange}
