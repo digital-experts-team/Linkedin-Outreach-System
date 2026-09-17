@@ -56,61 +56,15 @@ export function LinkedInPostCard({ post, onShowNotice }: LinkedInPostCardProps) 
     setTimeout(() => setCopied(false), 2500);
   };
 
-  // Format body text with paragraphs and highlighted hashtags
+  // Render text copy as it is in Notion
   const renderFormattedCopy = () => {
     if (!post.fullCopy) {
       return <p className="text-secondary italic">No post copy written yet.</p>;
     }
 
-    const lines = post.fullCopy.split('\n');
-    const shouldTruncate = lines.length > 8 && !isExpanded;
-    const visibleLines = shouldTruncate ? lines.slice(0, 8) : lines;
-
     return (
-      <div className="space-y-2 text-[13.5px] sm:text-[14px] text-slate-800 leading-relaxed font-normal whitespace-pre-line break-words">
-        {visibleLines.map((line, idx) => {
-          // Detect hashtag lines
-          if (line.trim().startsWith('#') || line.includes('#')) {
-            const parts = line.split(/(\s+)/);
-            return (
-              <p key={idx} className="text-primary font-medium text-xs sm:text-[13px]">
-                {parts.map((part, pIdx) =>
-                  part.startsWith('#') ? (
-                    <span key={pIdx} className="text-blue-600 hover:underline cursor-pointer">
-                      {part}
-                    </span>
-                  ) : (
-                    part
-                  )
-                )}
-              </p>
-            );
-          }
-
-          // Monospace or list detection
-          if (line.match(/^(\d+\.|\•|\-|\*)\s+/)) {
-            return (
-              <div
-                key={idx}
-                className="pl-2 border-l-2 border-primary/40 bg-surface-container-low/60 rounded-r-md py-0.5 text-slate-900 font-medium text-[13px]"
-              >
-                {line}
-              </div>
-            );
-          }
-
-          return <p key={idx}>{line}</p>;
-        })}
-
-        {shouldTruncate && (
-          <button
-            type="button"
-            onClick={() => setIsExpanded(true)}
-            className="text-secondary hover:text-primary font-semibold text-xs transition-colors cursor-pointer"
-          >
-            ...see more
-          </button>
-        )}
+      <div className="text-[13.5px] sm:text-[14px] text-slate-900 leading-relaxed font-normal whitespace-pre-wrap break-words">
+        {post.fullCopy}
       </div>
     );
   };
