@@ -164,8 +164,8 @@ export function LinkedInPostCard({ post, onShowNotice, onPostUpdated }: LinkedIn
                 {post.authorHeadline || 'Founder & CEO at Outreach Pilot'}
               </p>
 
-              {/* Status and Date placed in Top Header */}
-              <div className="flex items-center gap-2 text-slate-500 text-[11px] mt-1 font-medium flex-wrap">
+              {/* Status, Vertical, and Date placed in Top Header */}
+              <div className="flex items-center gap-1.5 text-slate-500 text-[11px] mt-1 font-medium flex-wrap">
                 <span className="text-blue-600 font-semibold">{displayDate}</span>
                 <span>•</span>
                 <span
@@ -184,6 +184,14 @@ export function LinkedInPostCard({ post, onShowNotice, onPostUpdated }: LinkedIn
                   />
                   <span>{post.status || 'Draft'}</span>
                 </span>
+                {post.vertical && (
+                  <>
+                    <span>•</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200/80">
+                      {post.vertical}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           </div>

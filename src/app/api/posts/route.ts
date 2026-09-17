@@ -10,12 +10,14 @@ export async function GET(request: NextRequest): Promise<NextResponse<PostsApiRe
     const cursor = searchParams.get('cursor');
     const pageSizeParam = searchParams.get('pageSize');
     const statusParam = searchParams.get('status') || undefined;
+    const verticalParam = searchParams.get('vertical') || undefined;
     const pageSize = pageSizeParam ? parseInt(pageSizeParam, 10) : undefined;
 
     const result = await fetchLinkedInPosts({
       cursor,
       pageSize,
       status: statusParam,
+      vertical: verticalParam,
     });
 
     const responseHeaders = {
@@ -55,6 +57,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<PostsApiRe
         hasMore: result.hasMore,
         nextCursor: result.nextCursor,
         counts: result.counts,
+        verticals: result.verticals,
       },
       {
         status: 200,

@@ -44,6 +44,10 @@ export interface PostsApiResponse {
     drafts: number;
     published: number;
   };
+  verticals?: Array<{
+    name: string;
+    count: number;
+  }>;
   error?: {
     code: string;
     message: string;

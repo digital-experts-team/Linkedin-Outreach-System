@@ -416,6 +416,7 @@ export interface FetchPostsOptions {
   cursor?: string | null;
   pageSize?: number;
   status?: string;
+  vertical?: string;
 }
 
 export interface FetchPostsResult {
@@ -428,6 +429,10 @@ export interface FetchPostsResult {
     drafts: number;
     published: number;
   };
+  verticals?: Array<{
+    name: string;
+    count: number;
+  }>;
   error?: {
     code: 'CONFIG_REQUIRED' | 'UNAUTHORIZED' | 'NOT_FOUND_OR_FORBIDDEN' | 'RATE_LIMITED' | 'FETCH_ERROR';
     message: string;
@@ -482,24 +487,44 @@ export async function fetchLinkedInPosts(options: FetchPostsOptions = {}): Promi
     const results = Array.isArray(data.results) ? data.results : [];
     const allPosts = results.map((page: any) => normalizeNotionPostPage(page));
 
-    // Calculate counts for filters
+    // Calculate vertical breakdown from all posts
+    const verticalMap = new Map<string, number>();
+    for (const post of allPosts) {
+      const v = post.vertical?.trim() || 'General';
+      verticalMap.set(v, (verticalMap.get(v) || 0) + 1);
+    }
+    const verticals = Array.from(verticalMap.entries()).map(([name, count]) => ({
+      name,
+      count,
+    }));
+
+    // Filter by vertical first if requested
+    let verticalFiltered = allPosts;
+    if (options.vertical && options.vertical !== 'All' && options.vertical !== 'all') {
+      const targetVertical = options.vertical.toLowerCase();
+      verticalFiltered = allPosts.filter((p: LinkedInPost) => {
+        return (p.vertical || 'General').toLowerCase() === targetVertical;
+      });
+    }
+
+    // Calculate status counts based on vertical scope
     const counts = {
-      all: allPosts.length,
-      scheduled: allPosts.filter((p: LinkedInPost) => (p.status || '').toLowerCase().includes('scheduled')).length,
-      drafts: allPosts.filter((p: LinkedInPost) => (p.status || '').toLowerCase().includes('draft') || (p.status || '').toLowerCase().includes('idea')).length,
-      published: allPosts.filter((p: LinkedInPost) => (p.status || '').toLowerCase().includes('published') || (p.status || '').toLowerCase().includes('done')).length,
+      all: verticalFiltered.length,
+      scheduled: verticalFiltered.filter((p: LinkedInPost) => (p.status || '').toLowerCase().includes('scheduled')).length,
+      drafts: verticalFiltered.filter((p: LinkedInPost) => (p.status || '').toLowerCase().includes('draft') || (p.status || '').toLowerCase().includes('idea')).length,
+      published: verticalFiltered.filter((p: LinkedInPost) => (p.status || '').toLowerCase().includes('published') || (p.status || '').toLowerCase().includes('done')).length,
     };
 
-    // Filter if requested
-    let filteredPosts = allPosts;
-    if (options.status && options.status !== 'All') {
-      const target = options.status.toLowerCase();
-      filteredPosts = allPosts.filter((p: LinkedInPost) => {
+    // Filter by status if requested
+    let filteredPosts = verticalFiltered;
+    if (options.status && options.status !== 'All' && options.status !== 'all') {
+      const targetStatus = options.status.toLowerCase();
+      filteredPosts = verticalFiltered.filter((p: LinkedInPost) => {
         const s = (p.status || '').toLowerCase();
-        if (target === 'scheduled') return s.includes('scheduled');
-        if (target === 'drafts' || target === 'draft') return s.includes('draft') || s.includes('idea');
-        if (target === 'published') return s.includes('published') || s.includes('done');
-        return s === target;
+        if (targetStatus === 'scheduled') return s.includes('scheduled');
+        if (targetStatus === 'drafts' || targetStatus === 'draft') return s.includes('draft') || s.includes('idea');
+        if (targetStatus === 'published') return s.includes('published') || s.includes('done');
+        return s === targetStatus;
       });
     }
 
@@ -508,6 +533,7 @@ export async function fetchLinkedInPosts(options: FetchPostsOptions = {}): Promi
       hasMore: Boolean(data.has_more),
       nextCursor: data.next_cursor || null,
       counts,
+      verticals,
     };
   } catch (error: any) {
     return {
