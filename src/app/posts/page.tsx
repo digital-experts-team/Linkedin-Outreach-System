@@ -79,11 +79,11 @@ export default function PostsPage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased font-sans">
-      {/* Main Flow Container */}
-      <main className="flex-1 flex flex-col w-full pb-28 px-3.5 sm:px-4 max-w-lg mx-auto gap-4">
+    <div className="min-h-screen flex flex-col bg-[#f3f2ef] text-slate-900 antialiased font-sans">
+      {/* Main Flow Container: Full-width cards with grey background gaps */}
+      <main className="flex-1 flex flex-col w-full pb-28 px-0 max-w-lg mx-auto">
         {/* Top Sticky Filter Controls: Parent Verticals Toggle + Child Status Filter */}
-        <section className="sticky top-0 z-30 -mx-3.5 sm:-mx-4 px-3.5 sm:px-4 pt-3 pb-3 bg-white/95 backdrop-blur-md border-b border-slate-200/80 flex flex-col gap-2.5">
+        <section className="sticky top-0 z-30 px-3.5 sm:px-4 pt-3 pb-2.5 bg-white border-b border-slate-200/80 flex flex-col gap-2.5 mb-2 shadow-2xs">
           {/* Page Title & Refresh */}
           <div className="flex items-center justify-between">
             <div>
@@ -187,18 +187,18 @@ export default function PostsPage() {
 
         {/* Loading State Skeleton */}
         {loading && (
-          <div className="space-y-4 animate-pulse pt-1">
+          <div className="space-y-2 w-full animate-pulse">
             {[1, 2].map((i) => (
-              <div key={i} className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs space-y-3">
+              <div key={i} className="bg-white rounded-none p-4 border-y border-slate-200/80 space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 bg-slate-200 rounded-full" />
+                  <div className="w-12 h-12 bg-slate-200 rounded-full" />
                   <div className="space-y-1.5 flex-1">
                     <div className="h-4 bg-slate-200 rounded w-1/3" />
                     <div className="h-3 bg-slate-200 rounded w-1/2" />
                   </div>
                 </div>
-                <div className="h-16 bg-slate-100 rounded-xl" />
-                <div className="h-48 bg-slate-100 rounded-xl" />
+                <div className="h-16 bg-slate-100" />
+                <div className="h-48 bg-slate-100" />
               </div>
             ))}
           </div>
@@ -206,7 +206,7 @@ export default function PostsPage() {
 
         {/* Error State */}
         {!loading && error && (
-          <div className="bg-red-50 border border-red-200 text-red-800 rounded-2xl p-5 text-center space-y-3 mt-4">
+          <div className="mx-3.5 sm:mx-4 bg-red-50 border border-red-200 text-red-800 rounded-2xl p-5 text-center space-y-3 mt-4">
             <p className="font-semibold text-sm">Failed to load posts</p>
             <p className="text-xs text-red-600">{error}</p>
             <button
@@ -220,7 +220,7 @@ export default function PostsPage() {
 
         {/* Empty State */}
         {!loading && !error && posts.length === 0 && (
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-8 text-center space-y-3 my-6 shadow-xs">
+          <div className="mx-3.5 sm:mx-4 bg-white border border-slate-200/80 rounded-2xl p-8 text-center space-y-3 my-6 shadow-xs">
             <div className="w-12 h-12 rounded-full bg-blue-50 text-primary mx-auto flex items-center justify-center font-bold text-lg">
               📝
             </div>
@@ -244,9 +244,9 @@ export default function PostsPage() {
           </div>
         )}
 
-        {/* Posts Feed */}
+        {/* Posts Feed: Full width cards with 8px grey gap between each */}
         {!loading && !error && posts.length > 0 && (
-          <div className="space-y-4 pt-1">
+          <div className="space-y-2 w-full">
             {posts.map((post) => (
               <LinkedInPostCard
                 key={post.id}

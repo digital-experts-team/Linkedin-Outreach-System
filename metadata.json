@@ -1,0 +1,6 @@
+{
+  "name": "LinkedIn Outreach System",
+  "description": "Responsive Notion-backed CRM & LinkedIn Outreach Lead Management application with Content Hub studio.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

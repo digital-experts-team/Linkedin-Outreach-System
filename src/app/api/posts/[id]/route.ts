@@ -89,13 +89,14 @@ export async function PATCH(
 
   try {
     const body = await request.json();
-    const { fullCopy, status, scheduledDate, name } = body;
+    const { fullCopy, status, scheduledDate, name, images } = body;
 
     const result = await updateLinkedInPostInNotion(id, {
       fullCopy,
       status,
       scheduledDate,
       name,
+      images,
     });
 
     const responseHeaders = {

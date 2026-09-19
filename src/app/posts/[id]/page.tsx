@@ -3,7 +3,7 @@
 import React, { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LinkedInPost, PostDetailApiResponse } from '@/types/post';
+import { LinkedInPost, PostDetailApiResponse, PostMediaItem } from '@/types/post';
 import { LinkedInPostCard } from '@/components/LinkedInPostCard';
 import { Toast } from '@/components/Toast';
 import {
@@ -17,6 +17,10 @@ import {
   EyeIcon,
   EditIcon,
   TrashIcon,
+  ImageIcon,
+  UploadIcon,
+  PlusIcon,
+  XIcon,
 } from '@/components/icons';
 
 export default function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -41,6 +45,22 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
   const [scheduledDate, setScheduledDate] = useState('');
   const [vertical, setVertical] = useState('GTM');
 
+  // Images State (Files Column)
+  const [images, setImages] = useState<PostMediaItem[]>([]);
+  const [imageUrlInput, setImageUrlInput] = useState('');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [imageToRemove, setImageToRemove] = useState<number | null>(null);
+  const [addMediaMode, setAddMediaMode] = useState<'upload' | 'url'>('upload');
+
+  // Replace Image State
+  const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
+  const [replaceMode, setReplaceMode] = useState<'upload' | 'url'>('upload');
+  const [replaceUrlInput, setReplaceUrlInput] = useState('');
+  const [isReplacingImage, setIsReplacingImage] = useState(false);
+  const [isDragOverReplace, setIsDragOverReplace] = useState(false);
+
   useEffect(() => {
     async function fetchPost() {
       setLoading(true);
@@ -57,6 +77,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
           setStatus(data.post.status || 'Drafted');
           setScheduledDate(data.post.scheduledDate || '');
           setVertical(data.post.vertical || 'GTM');
+          setImages(data.post.images || []);
         } else {
           setError('Post not found');
         }
@@ -86,6 +107,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
           fullCopy,
           status,
           scheduledDate: scheduledDate || null,
+          images,
         }),
       });
 
@@ -94,6 +116,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
         setNotice(`Failed to save to Notion: ${data.error.message}`);
       } else if (data.post) {
         setPost(data.post);
+        setImages(data.post.images || []);
         setNotice('Changes saved to Notion successfully!');
       }
     } catch (err: any) {
@@ -118,6 +141,125 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const dd = String(d.getDate()).padStart(2, '0');
     setScheduledDate(`${yyyy}-${mm}-${dd}`);
+  };
+
+  const handleFileUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+
+    if (!file.type.startsWith('image/') && !file.name.match(/\.(png|jpe?g|webp|gif|svg)$/i)) {
+      setNotice('Please choose a valid image file (PNG, JPG, WEBP, GIF, SVG)');
+      return;
+    }
+
+    setIsUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/posts/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setNotice(`Upload failed: ${data.error?.message || 'Server error'}`);
+      } else {
+        const newMediaItem: PostMediaItem = {
+          url: data.url,
+          name: data.name || file.name,
+          type: 'image',
+        };
+        setImages((prev) => [...prev, newMediaItem]);
+        setNotice('Image uploaded! Click "Save Changes to Notion" to update your database.');
+      }
+    } catch (err: any) {
+      setNotice('Network error uploading image file');
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleAddImageUrl = () => {
+    const trimmed = imageUrlInput.trim();
+    if (!trimmed) return;
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://') && !trimmed.startsWith('data:')) {
+      setNotice('Please enter a valid image URL starting with https://');
+      return;
+    }
+    const cleanName = trimmed.split('/').pop()?.split('?')[0] || 'attached_image.png';
+    const newMediaItem: PostMediaItem = {
+      url: trimmed,
+      name: cleanName.length > 30 ? cleanName.slice(0, 30) + '...' : cleanName,
+      type: 'image',
+    };
+    setImages((prev) => [...prev, newMediaItem]);
+    setImageUrlInput('');
+    setNotice('Image URL attached! Click "Save Changes to Notion" to update your database.');
+  };
+
+  const handleReplaceUploadFile = async (files: FileList | null, indexToReplace: number) => {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    if (!file.type.startsWith('image/') && !file.name.match(/\.(png|jpe?g|webp|gif|svg)$/i)) {
+      setNotice('Please select a valid image file (PNG, JPG, WEBP, GIF, SVG)');
+      return;
+    }
+
+    setIsReplacingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/posts/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setNotice(`Upload failed: ${data.error?.message || 'Server error'}`);
+      } else {
+        const replacementItem: PostMediaItem = {
+          url: data.url,
+          name: data.name || file.name,
+          type: 'image',
+        };
+        setImages((prev) => prev.map((img, i) => (i === indexToReplace ? replacementItem : img)));
+        setReplacingIndex(null);
+        setNotice('Image replaced! Click "Save Changes to Notion" to update your database.');
+      }
+    } catch (err: any) {
+      setNotice('Network error uploading replacement image');
+    } finally {
+      setIsReplacingImage(false);
+    }
+  };
+
+  const handleReplaceWithUrl = (indexToReplace: number) => {
+    const trimmed = replaceUrlInput.trim();
+    if (!trimmed) return;
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://') && !trimmed.startsWith('data:')) {
+      setNotice('Please enter a valid image URL starting with https://');
+      return;
+    }
+    const cleanName = trimmed.split('/').pop()?.split('?')[0] || 'replaced_image.png';
+    const replacementItem: PostMediaItem = {
+      url: trimmed,
+      name: cleanName.length > 30 ? cleanName.slice(0, 30) + '...' : cleanName,
+      type: 'image',
+    };
+    setImages((prev) => prev.map((img, i) => (i === indexToReplace ? replacementItem : img)));
+    setReplacingIndex(null);
+    setReplaceUrlInput('');
+    setNotice('Image replaced! Click "Save Changes to Notion" to update your database.');
+  };
+
+  const handleConfirmRemoveImage = (indexToRemove: number) => {
+    setImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+    setImageToRemove(null);
+    setNotice('Image removed. Click "Save Changes to Notion" to persist.');
   };
 
   const handleDeletePost = async () => {
@@ -152,6 +294,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
         status,
         scheduledDate: scheduledDate || null,
         vertical,
+        images,
       }
     : null;
 
@@ -247,6 +390,22 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
       <main className="flex-1 w-full max-w-lg mx-auto p-4 pb-32 space-y-4">
         {activeTab === 'edit' ? (
           <div className="space-y-4">
+            {/* Notion Metadata Indicators */}
+            {(post.vertical || post.angleType) && (
+              <div className="flex items-center gap-2 flex-wrap px-0.5">
+                {post.vertical && (
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-200/80 text-slate-700">
+                    {post.vertical}
+                  </span>
+                )}
+                {post.angleType && (
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200/70">
+                    {post.angleType}
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* 1. Status Dropdown Card */}
             <section className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-card space-y-2.5">
               <label htmlFor="post-status-select" className="text-xs font-bold font-display text-slate-700 flex items-center gap-1.5">
@@ -367,21 +526,273 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
               </div>
             </section>
 
-            {/* 6. Attached Media Display (Read-only) */}
-            {post.images && post.images.length > 0 && (
-              <section className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-card space-y-2.5">
-                <label className="text-xs font-bold font-display text-slate-700 flex items-center gap-1.5">
-                  <span>Attached Graphic</span>
-                </label>
-                <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
-                  <img
-                    src={post.images[0].url}
-                    alt={post.images[0].name || post.name}
-                    className="w-full h-auto max-h-72 object-cover"
-                  />
+            {/* 6. Attached Images (Notion Files Column) */}
+            <section className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-card space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2 border-b border-slate-100">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-[#0a66c2]" />
+                    <h3 className="text-xs font-bold font-display text-slate-800 uppercase tracking-wider">
+                      Attached Images (Files Column)
+                    </h3>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                      {images.length === 1 ? '1 Image' : `${images.length} Images`}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Synced with Notion Content Hub <code className="text-slate-700 font-semibold">Image</code> files property (referenced from row with existing image).
+                  </p>
                 </div>
-              </section>
-            )}
+
+                {/* Unsaved indicator & quick sync button */}
+                {JSON.stringify(images.map((img) => img.url)) !== JSON.stringify((post.images || []).map((img) => img.url)) && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                      Unsaved Changes
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleSaveToNotion}
+                      disabled={saving}
+                      className="text-xs font-semibold text-white bg-[#0a66c2] hover:bg-[#004182] px-2.5 py-1 rounded-lg transition tap-bounce flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                      title="Save changes to Notion files column"
+                    >
+                      {saving ? (
+                        <SyncIcon className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <CheckIcon className="w-3 h-3" />
+                      )}
+                      <span>Sync</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Current Images List / Gallery */}
+              {images.length > 0 ? (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {images.map((img, idx) => (
+                      <div
+                        key={`${img.url}-${idx}`}
+                        className="group relative rounded-xl border border-slate-200 bg-slate-50 overflow-hidden transition hover:shadow-md hover:border-slate-300"
+                      >
+                        {/* Thumbnail View */}
+                        <div className="relative aspect-video bg-slate-900/5 overflow-hidden flex items-center justify-center">
+                          <img
+                            src={img.url}
+                            alt={img.name || `Attached image ${idx + 1}`}
+                            className="w-full h-full object-cover transition duration-200 group-hover:scale-[1.02] cursor-pointer"
+                            onClick={() => setLightboxImage(img.url)}
+                          />
+                          {/* Hover action overlay */}
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-2">
+                            <button
+                              type="button"
+                              onClick={() => setLightboxImage(img.url)}
+                              className="px-2.5 py-1.5 rounded-lg bg-white/90 hover:bg-white text-slate-800 text-xs font-semibold flex items-center gap-1 shadow-sm transition cursor-pointer"
+                              title="Preview full image"
+                            >
+                              <EyeIcon className="w-3.5 h-3.5" />
+                              <span>View</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setReplacingIndex(idx);
+                                setReplaceMode('upload');
+                              }}
+                              className="px-2.5 py-1.5 rounded-lg bg-[#0a66c2] hover:bg-[#004182] text-white text-xs font-semibold flex items-center gap-1 shadow-sm transition cursor-pointer"
+                              title="Replace this image"
+                            >
+                              <UploadIcon className="w-3.5 h-3.5" />
+                              <span>Replace</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setImageToRemove(idx)}
+                              className="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold flex items-center gap-1 shadow-sm transition cursor-pointer"
+                              title="Remove image from post"
+                            >
+                              <TrashIcon className="w-3.5 h-3.5" />
+                              <span>Remove</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Card Info & Actions Footer */}
+                        <div className="p-2.5 flex items-center justify-between gap-2 bg-white border-t border-slate-100">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold text-slate-700 truncate" title={img.name || img.url}>
+                              {img.name || `Image ${idx + 1}`}
+                            </p>
+                            <p className="text-[10px] text-slate-400 truncate">
+                              {img.url.startsWith('data:') ? 'Embedded image' : img.url}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setReplacingIndex(idx);
+                                setReplaceMode('upload');
+                              }}
+                              className="text-xs font-semibold text-slate-700 hover:text-[#0a66c2] hover:bg-blue-50/80 px-2 py-1 rounded-md transition cursor-pointer flex items-center gap-1"
+                              title="Replace this image"
+                            >
+                              <UploadIcon className="w-3.5 h-3.5 text-slate-500" />
+                              <span>Replace</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setImageToRemove(idx)}
+                              className="text-xs font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-2 py-1 rounded-md transition cursor-pointer flex items-center gap-1"
+                              title="Remove image from Notion files column"
+                            >
+                              <TrashIcon className="w-3.5 h-3.5" />
+                              <span>Remove</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="py-6 px-4 rounded-xl border border-dashed border-slate-200 bg-slate-50/60 text-center">
+                  <ImageIcon className="w-8 h-8 text-slate-300 mx-auto mb-1.5" />
+                  <p className="text-xs font-semibold text-slate-600">No images attached</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Upload an image file or paste an image URL below to attach to this LinkedIn post.
+                  </p>
+                </div>
+              )}
+
+              {/* Add Image Options */}
+              <div className="pt-2 border-t border-slate-100 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
+                    Add New Image
+                  </label>
+                  <div className="flex rounded-lg bg-slate-100 p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setAddMediaMode('upload')}
+                      className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition-all flex items-center gap-1 cursor-pointer ${
+                        addMediaMode === 'upload' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      <UploadIcon className="w-3 h-3" />
+                      <span>Upload File</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAddMediaMode('url')}
+                      className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition-all flex items-center gap-1 cursor-pointer ${
+                        addMediaMode === 'url' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      <PlusIcon className="w-3 h-3" />
+                      <span>Image URL</span>
+                    </button>
+                  </div>
+                </div>
+
+                {addMediaMode === 'upload' ? (
+                  /* 1. Drag & Drop / File Upload */
+                  <div
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setIsDragOver(true);
+                    }}
+                    onDragLeave={() => setIsDragOver(false)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setIsDragOver(false);
+                      handleFileUpload(e.dataTransfer.files);
+                    }}
+                    className={`p-4 rounded-xl border-2 border-dashed transition text-center ${
+                      isDragOver
+                        ? 'border-[#0a66c2] bg-blue-50/60'
+                        : 'border-slate-200 bg-slate-50/50 hover:bg-slate-50 hover:border-slate-300'
+                    }`}
+                  >
+                    <input
+                      type="file"
+                      id="post-image-file-input"
+                      accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                      onChange={(e) => handleFileUpload(e.target.files)}
+                      className="hidden"
+                      disabled={isUploadingImage}
+                    />
+                    <div className="flex flex-col items-center justify-center gap-1.5">
+                      {isUploadingImage ? (
+                        <div className="flex items-center gap-2 text-xs font-medium text-[#0a66c2] py-2">
+                          <SyncIcon className="w-4 h-4 animate-spin" />
+                          <span>Uploading image...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <UploadIcon className="w-6 h-6 text-slate-400 mb-0.5" />
+                          <div className="text-xs text-slate-600">
+                            <label
+                              htmlFor="post-image-file-input"
+                              className="font-bold text-[#0a66c2] hover:underline cursor-pointer"
+                            >
+                              Click to browse
+                            </label>{' '}
+                            or drag & drop your image here
+                          </div>
+                          <p className="text-[10px] text-slate-400">
+                            Supports PNG, JPG, WEBP, GIF, SVG up to 10MB
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  /* 2. Add via Image URL */
+                  <div className="space-y-1.5">
+                    <span className="text-[11px] text-slate-500 font-medium">Attach image from web link:</span>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type="url"
+                          value={imageUrlInput}
+                          onChange={(e) => setImageUrlInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAddImageUrl();
+                            }
+                          }}
+                          placeholder="https://images.unsplash.com/... or hosted image URL"
+                          className="w-full pl-3 pr-8 py-2 text-xs text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0a66c2] focus:bg-white"
+                        />
+                        {imageUrlInput && (
+                          <button
+                            type="button"
+                            onClick={() => setImageUrlInput('')}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                          >
+                            <XIcon className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAddImageUrl}
+                        disabled={!imageUrlInput.trim()}
+                        className="px-3 py-2 rounded-xl text-xs font-semibold text-white bg-slate-800 hover:bg-slate-900 disabled:opacity-40 transition tap-bounce flex items-center gap-1.5 flex-shrink-0 cursor-pointer"
+                      >
+                        <PlusIcon className="w-3.5 h-3.5" />
+                        <span>Attach URL</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
           </div>
         ) : (
           /* Live LinkedIn Card Preview Tab */
@@ -524,6 +935,298 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                 )}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lightbox Modal */}
+      {lightboxImage && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setLightboxImage(null)}
+        >
+          <div
+            className="relative max-w-4xl max-h-[90vh] flex flex-col items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setLightboxImage(null)}
+              className="absolute -top-10 right-0 text-white/80 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition cursor-pointer"
+              aria-label="Close preview"
+            >
+              <XIcon className="w-6 h-6" />
+            </button>
+            <img
+              src={lightboxImage}
+              alt="Enlarged image preview"
+              className="max-w-full max-h-[82vh] object-contain rounded-xl shadow-2xl border border-white/10"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Remove Image Confirmation Modal */}
+      {imageToRemove !== null && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4"
+          onClick={() => setImageToRemove(null)}
+        >
+          <div
+            className="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-200/80 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center flex-shrink-0 text-rose-600">
+                <TrashIcon className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base font-bold font-display text-slate-900">
+                  Remove Attached Image?
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Are you sure you want to remove this image from the post? It will be removed from your Notion database files column once you save changes.
+                </p>
+              </div>
+            </div>
+
+            {images[imageToRemove] && (
+              <div className="flex items-center gap-3 p-2 bg-slate-50 border border-slate-200/60 rounded-xl">
+                <img
+                  src={images[imageToRemove].url}
+                  alt={images[imageToRemove].name || 'Image to remove'}
+                  className="w-12 h-12 object-cover rounded-lg flex-shrink-0"
+                />
+                <span className="text-xs font-semibold text-slate-700 truncate">
+                  {images[imageToRemove].name || 'Attached image'}
+                </span>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setImageToRemove(null)}
+                className="px-4 py-2 text-xs font-semibold font-display text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition tap-bounce cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleConfirmRemoveImage(imageToRemove)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold font-display text-white bg-rose-600 hover:bg-rose-700 active:bg-rose-800 rounded-xl shadow-xs transition tap-bounce cursor-pointer"
+              >
+                <TrashIcon className="w-3.5 h-3.5" />
+                <span>Remove Image</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Replace Image Modal */}
+      {replacingIndex !== null && images[replacingIndex] && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => !isReplacingImage && setReplacingIndex(null)}
+        >
+          <div
+            className="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200/90 space-y-4 font-sans animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#0a66c2] flex items-center justify-center flex-shrink-0">
+                  <UploadIcon className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold font-display text-slate-900">
+                    Replace Attached Image
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    Choose a new image to replace the current image.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                disabled={isReplacingImage}
+                onClick={() => setReplacingIndex(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+              >
+                <XIcon className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Current Image Being Replaced */}
+            <div className="flex items-center gap-3 p-2 bg-slate-50 border border-slate-200/70 rounded-xl">
+              <img
+                src={images[replacingIndex].url}
+                alt={images[replacingIndex].name || 'Current image'}
+                className="w-12 h-12 object-cover rounded-lg flex-shrink-0 border border-slate-200"
+              />
+              <div className="min-w-0 flex-1">
+                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  Current Image
+                </span>
+                <span className="text-xs font-semibold text-slate-700 truncate block">
+                  {images[replacingIndex].name || `Image ${replacingIndex + 1}`}
+                </span>
+              </div>
+            </div>
+
+            {/* Segmented Mode Selector */}
+            <div className="flex rounded-xl bg-slate-100 p-1">
+              <button
+                type="button"
+                onClick={() => setReplaceMode('upload')}
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  replaceMode === 'upload'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <UploadIcon className="w-3.5 h-3.5" />
+                <span>Upload Replacement</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setReplaceMode('url')}
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  replaceMode === 'url'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <PlusIcon className="w-3.5 h-3.5" />
+                <span>Image URL</span>
+              </button>
+            </div>
+
+            {replaceMode === 'upload' ? (
+              /* Drag & Drop File Replacement */
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragOverReplace(true);
+                }}
+                onDragLeave={() => setIsDragOverReplace(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragOverReplace(false);
+                  if (replacingIndex !== null) {
+                    handleReplaceUploadFile(e.dataTransfer.files, replacingIndex);
+                  }
+                }}
+                className={`p-6 rounded-xl border-2 border-dashed transition text-center ${
+                  isDragOverReplace
+                    ? 'border-[#0a66c2] bg-blue-50/60'
+                    : 'border-slate-200 bg-slate-50/50 hover:bg-slate-50 hover:border-slate-300'
+                }`}
+              >
+                <input
+                  type="file"
+                  id={`replace-file-${replacingIndex}`}
+                  accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                  onChange={(e) => {
+                    if (replacingIndex !== null) {
+                      handleReplaceUploadFile(e.target.files, replacingIndex);
+                    }
+                  }}
+                  className="hidden"
+                  disabled={isReplacingImage}
+                />
+                <div className="flex flex-col items-center justify-center gap-2">
+                  {isReplacingImage ? (
+                    <div className="flex items-center gap-2 text-xs font-semibold text-[#0a66c2] py-3">
+                      <SyncIcon className="w-4 h-4 animate-spin" />
+                      <span>Uploading replacement image...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="w-10 h-10 rounded-full bg-blue-50 text-[#0a66c2] flex items-center justify-center">
+                        <UploadIcon className="w-5 h-5" />
+                      </div>
+                      <div className="text-xs text-slate-700">
+                        <label
+                          htmlFor={`replace-file-${replacingIndex}`}
+                          className="font-bold text-[#0a66c2] hover:underline cursor-pointer"
+                        >
+                          Click to browse
+                        </label>{' '}
+                        or drop new image file here
+                      </div>
+                      <p className="text-[10px] text-slate-400">
+                        PNG, JPG, WEBP, GIF, SVG up to 10MB
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* URL Replacement */
+              <div className="space-y-3 py-2">
+                <label className="text-[11px] font-semibold text-slate-600 block">
+                  Paste Replacement Image URL
+                </label>
+                <div className="relative">
+                  <input
+                    type="url"
+                    value={replaceUrlInput}
+                    onChange={(e) => setReplaceUrlInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (replacingIndex !== null) {
+                          handleReplaceWithUrl(replacingIndex);
+                        }
+                      }
+                    }}
+                    placeholder="https://images.unsplash.com/... or image link"
+                    className="w-full px-3 py-2 text-xs text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0a66c2] focus:bg-white"
+                    disabled={isReplacingImage}
+                    autoFocus
+                  />
+                  {replaceUrlInput && (
+                    <button
+                      type="button"
+                      onClick={() => setReplaceUrlInput('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                    >
+                      <XIcon className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    disabled={isReplacingImage}
+                    onClick={() => setReplacingIndex(null)}
+                    className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-lg transition tap-bounce cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isReplacingImage || !replaceUrlInput.trim()}
+                    onClick={() => {
+                      if (replacingIndex !== null) {
+                        handleReplaceWithUrl(replacingIndex);
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-[#0a66c2] hover:bg-[#004182] rounded-lg shadow-xs transition tap-bounce cursor-pointer disabled:opacity-50"
+                  >
+                    <span>Replace Image</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

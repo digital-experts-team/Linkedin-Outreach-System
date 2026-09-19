@@ -1,6 +1,6 @@
 import { normalizeNotionPage, normalizeAiVideoNotionPage, normalizeNotionPostPage } from './mapper';
 import { Lead, VerticalId } from '@/types/lead';
-import { LinkedInPost } from '@/types/post';
+import { LinkedInPost, PostMediaItem } from '@/types/post';
 
 export interface FetchLeadsOptions {
   cursor?: string | null;
@@ -621,7 +621,45 @@ export async function fetchLinkedInPostByIdFromNotion(pageId: string): Promise<{
 }
 
 /**
- * Updates a LinkedIn post in the Notion Content Hub database (e.g. edited copy, scheduled date, or status).
+ * Formats an array of image items for the Notion files property ("Image").
+ * Properly uses "file" type for Notion-hosted files and "external" for others.
+ */
+export function formatImagesForNotion(
+  images: Array<PostMediaItem | { url: string; name?: string }>
+): Array<any> {
+  if (!images || !Array.isArray(images)) return [];
+  return images
+    .filter((img) => img && typeof img.url === 'string' && img.url.trim().length > 0)
+    .map((img, index) => {
+      const trimmedUrl = img.url.trim();
+      const fileName = (img.name && img.name.trim()) || `image_${index + 1}.png`;
+      const isNotionHosted =
+        trimmedUrl.includes('prod-files-secure.s3') ||
+        trimmedUrl.includes('notion-static.com') ||
+        trimmedUrl.includes('s3.us-west-2.amazonaws.com');
+
+      if (isNotionHosted) {
+        return {
+          name: fileName,
+          type: 'file',
+          file: {
+            url: trimmedUrl,
+          },
+        };
+      } else {
+        return {
+          name: fileName,
+          type: 'external',
+          external: {
+            url: trimmedUrl,
+          },
+        };
+      }
+    });
+}
+
+/**
+ * Updates a LinkedIn post in the Notion Content Hub database (e.g. edited copy, scheduled date, status, or attached images).
  */
 export async function updateLinkedInPostInNotion(
   pageId: string,
@@ -630,6 +668,7 @@ export async function updateLinkedInPostInNotion(
     status?: string;
     scheduledDate?: string | null;
     name?: string;
+    images?: Array<PostMediaItem | { url: string; name?: string }>;
   }
 ): Promise<{ success: boolean; post?: LinkedInPost; error?: any }> {
   const token = process.env.NOTION_TOKEN?.trim();
@@ -688,6 +727,12 @@ export async function updateLinkedInPostInNotion(
             },
           },
         ],
+      };
+    }
+
+    if (updates.images !== undefined) {
+      propertiesToUpdate['Image'] = {
+        files: formatImagesForNotion(updates.images),
       };
     }
 
