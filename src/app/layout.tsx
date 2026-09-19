@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Outreach Pilot - Leads',
-  description: 'Responsive Notion-backed lead management application for outreach.',
+  title: 'LinkedIn Outreach System',
+  description: 'Responsive Notion-backed CRM & LinkedIn Outreach Lead Management application with Content Hub studio.',
 };
 
 export default function RootLayout({
