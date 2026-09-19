@@ -10,6 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@google/genai": "^2.23.0",
     "@notionhq/client": "^2.2.15",
     "clsx": "^2.1.1",
     "next": "^15.1.0",

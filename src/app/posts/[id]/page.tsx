@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { LinkedInPost, PostDetailApiResponse, PostMediaItem } from '@/types/post';
 import { LinkedInPostCard } from '@/components/LinkedInPostCard';
 import { Toast } from '@/components/Toast';
+import { ImageGenerationFlow } from '@/components/ImageGenerationFlow';
 import {
   ArrowLeftIcon,
   ExternalLinkIcon,
@@ -21,6 +22,7 @@ import {
   UploadIcon,
   PlusIcon,
   XIcon,
+  SparklesIcon,
 } from '@/components/icons';
 
 export default function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -60,6 +62,10 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
   const [replaceUrlInput, setReplaceUrlInput] = useState('');
   const [isReplacingImage, setIsReplacingImage] = useState(false);
   const [isDragOverReplace, setIsDragOverReplace] = useState(false);
+
+  // AI Visual Director Flow State
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [aiModalInitialStep, setAiModalInitialStep] = useState<'menu' | 'directions' | 'upload' | 'url_input'>('menu');
 
   useEffect(() => {
     async function fetchPost() {
@@ -260,6 +266,40 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
     setImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
     setImageToRemove(null);
     setNotice('Image removed. Click "Save Changes to Notion" to persist.');
+  };
+
+  const handleAttachImageFromFlow = async (mediaItem: { url: string; name?: string }) => {
+    const newMedia: PostMediaItem = {
+      url: mediaItem.url,
+      name: mediaItem.name || 'image.jpg',
+      type: 'image',
+    };
+    const nextImages = [newMedia];
+    setImages(nextImages);
+
+    try {
+      const res = await fetch(`/api/posts/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          images: nextImages,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setNotice(`Failed to save image to Notion: ${data.error?.message || 'Server error'}`);
+        throw new Error(data.error?.message || 'Failed to save to Notion');
+      } else {
+        if (data.post) {
+          setPost(data.post);
+        }
+        setShowAiModal(false);
+        setNotice('Image successfully attached and synced with Notion!');
+      }
+    } catch (err: any) {
+      setNotice(err?.message || 'Failed to save image to Notion');
+      throw err;
+    }
   };
 
   const handleDeletePost = async () => {
@@ -571,22 +611,52 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
               {/* Current Images List / Gallery */}
               {images.length > 0 ? (
                 <div className="space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex items-center justify-between pb-1 flex-wrap gap-2">
+                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Image Preview</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAiModalInitialStep('directions');
+                          setShowAiModal(true);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold shadow-xs flex items-center gap-1.5 transition cursor-pointer tap-bounce"
+                        title="Generate visual directions tailored to this post"
+                      >
+                        <SparklesIcon className="w-3.5 h-3.5 text-amber-300" />
+                        <span>✦ Generate New Version</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAiModalInitialStep('menu');
+                          setShowAiModal(true);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs flex items-center gap-1.5 transition cursor-pointer tap-bounce"
+                        title="Replace current image"
+                      >
+                        <UploadIcon className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Replace Image</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3">
                     {images.map((img, idx) => (
                       <div
                         key={`${img.url}-${idx}`}
                         className="group relative rounded-xl border border-slate-200 bg-slate-50 overflow-hidden transition hover:shadow-md hover:border-slate-300"
                       >
                         {/* Thumbnail View */}
-                        <div className="relative aspect-video bg-slate-900/5 overflow-hidden flex items-center justify-center">
+                        <div className="relative aspect-video max-h-[440px] bg-slate-900/5 overflow-hidden flex items-center justify-center">
                           <img
                             src={img.url}
                             alt={img.name || `Attached image ${idx + 1}`}
-                            className="w-full h-full object-cover transition duration-200 group-hover:scale-[1.02] cursor-pointer"
+                            className="w-full h-full object-cover transition duration-200 group-hover:scale-[1.01] cursor-pointer"
                             onClick={() => setLightboxImage(img.url)}
                           />
                           {/* Hover action overlay */}
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-2">
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2">
                             <button
                               type="button"
                               onClick={() => setLightboxImage(img.url)}
@@ -599,8 +669,20 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                             <button
                               type="button"
                               onClick={() => {
-                                setReplacingIndex(idx);
-                                setReplaceMode('upload');
+                                setAiModalInitialStep('directions');
+                                setShowAiModal(true);
+                              }}
+                              className="px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold flex items-center gap-1 shadow-sm transition cursor-pointer"
+                              title="Generate new AI visual based on post copy"
+                            >
+                              <SparklesIcon className="w-3.5 h-3.5 text-amber-300" />
+                              <span>✦ AI Version</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setAiModalInitialStep('menu');
+                                setShowAiModal(true);
                               }}
                               className="px-2.5 py-1.5 rounded-lg bg-[#0a66c2] hover:bg-[#004182] text-white text-xs font-semibold flex items-center gap-1 shadow-sm transition cursor-pointer"
                               title="Replace this image"
@@ -630,12 +712,24 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                               {img.url.startsWith('data:') ? 'Embedded image' : img.url}
                             </p>
                           </div>
-                          <div className="flex items-center gap-1 flex-shrink-0">
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
                             <button
                               type="button"
                               onClick={() => {
-                                setReplacingIndex(idx);
-                                setReplaceMode('upload');
+                                setAiModalInitialStep('directions');
+                                setShowAiModal(true);
+                              }}
+                              className="text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 px-2 py-1 rounded-md transition cursor-pointer flex items-center gap-1"
+                              title="Generate new AI version"
+                            >
+                              <SparklesIcon className="w-3.5 h-3.5 text-amber-500" />
+                              <span>✦ AI Version</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setAiModalInitialStep('menu');
+                                setShowAiModal(true);
                               }}
                               className="text-xs font-semibold text-slate-700 hover:text-[#0a66c2] hover:bg-blue-50/80 px-2 py-1 rounded-md transition cursor-pointer flex items-center gap-1"
                               title="Replace this image"
@@ -659,12 +753,38 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                   </div>
                 </div>
               ) : (
-                <div className="py-6 px-4 rounded-xl border border-dashed border-slate-200 bg-slate-50/60 text-center">
-                  <ImageIcon className="w-8 h-8 text-slate-300 mx-auto mb-1.5" />
-                  <p className="text-xs font-semibold text-slate-600">No images attached</p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    Upload an image file or paste an image URL below to attach to this LinkedIn post.
+                <div className="py-8 px-4 rounded-xl border border-dashed border-slate-200 bg-slate-50/60 text-center">
+                  <div className="w-10 h-10 rounded-full bg-blue-50 text-[#0a66c2] flex items-center justify-center mx-auto mb-2">
+                    <ImageIcon className="w-5 h-5" />
+                  </div>
+                  <p className="text-xs font-bold text-slate-700">No image attached</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5 mb-4 max-w-sm mx-auto">
+                    Create an AI visual based on this post or upload an existing image.
                   </p>
+                  <div className="flex items-center justify-center gap-2.5 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAiModalInitialStep('directions');
+                        setShowAiModal(true);
+                      }}
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold shadow-xs hover:shadow-sm transition flex items-center gap-1.5 cursor-pointer tap-bounce"
+                    >
+                      <SparklesIcon className="w-4 h-4 text-amber-300" />
+                      <span>✦ Generate Image</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAiModalInitialStep('upload');
+                        setShowAiModal(true);
+                      }}
+                      className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs transition flex items-center gap-1.5 cursor-pointer tap-bounce"
+                    >
+                      <UploadIcon className="w-4 h-4 text-slate-500" />
+                      <span>Upload Image</span>
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -1230,6 +1350,23 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
           </div>
         </div>
       )}
+
+      {/* AI Visual Director & Media Modal Flow */}
+      <ImageGenerationFlow
+        post={{
+          id,
+          name,
+          title: name,
+          fullCopy,
+          vertical,
+          images,
+        }}
+        isOpen={showAiModal}
+        onClose={() => setShowAiModal(false)}
+        isReplacing={images.length > 0}
+        initialStep={aiModalInitialStep}
+        onAttachImage={handleAttachImageFromFlow}
+      />
 
       {/* Toast Notice */}
       <Toast message={notice} onClose={() => setNotice(null)} />
