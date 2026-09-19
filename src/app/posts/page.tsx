@@ -255,6 +255,13 @@ export default function PostsPage() {
                 onPostUpdated={(updatedPost) =>
                   setPosts((prev) => prev.map((p) => (p.id === updatedPost.id ? updatedPost : p)))
                 }
+                onPostDeleted={(deletedId) => {
+                  setPosts((prev) => prev.filter((p) => p.id !== deletedId));
+                  setCounts((prev) => ({
+                    ...prev,
+                    all: Math.max(0, prev.all - 1),
+                  }));
+                }}
               />
             ))}
           </div>

@@ -733,5 +733,63 @@ export async function updateLinkedInPostInNotion(
   }
 }
 
+/**
+ * Deletes (archives) a LinkedIn post page in Notion.
+ */
+export async function deleteLinkedInPostFromNotion(pageId: string): Promise<{ success: boolean; error?: any }> {
+  const token = process.env.NOTION_TOKEN?.trim();
+
+  if (!token) {
+    return {
+      success: false,
+      error: {
+        code: 'CONFIG_REQUIRED',
+        message: 'Notion integration token is not configured.',
+      },
+    };
+  }
+
+  try {
+    const formattedId = pageId.replace(/-/g, '');
+    const pageUrl = `https://api.notion.com/v1/pages/${formattedId}`;
+
+    const response = await fetch(pageUrl, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        archived: true,
+      }),
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      const errorJson = await response.json().catch(() => ({}));
+      return {
+        success: false,
+        error: {
+          code: response.status === 404 ? 'NOT_FOUND_OR_FORBIDDEN' : 'FETCH_ERROR',
+          message: errorJson.message || `Notion API returned HTTP ${response.status}`,
+        },
+      };
+    }
+
+    return {
+      success: true,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: {
+        code: 'FETCH_ERROR',
+        message: error?.message || 'Failed to delete post in Notion Content Hub',
+      },
+    };
+  }
+}
+
 
 

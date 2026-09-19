@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchLinkedInPostByIdFromNotion, updateLinkedInPostInNotion } from '@/lib/notion/client';
+import {
+  fetchLinkedInPostByIdFromNotion,
+  updateLinkedInPostInNotion,
+  deleteLinkedInPostFromNotion,
+} from '@/lib/notion/client';
 import { PostDetailApiResponse } from '@/types/post';
 
 export const dynamic = 'force-dynamic';
@@ -133,6 +137,71 @@ export async function PATCH(
         },
       },
       { status: 400 }
+    );
+  }
+}
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+
+  if (!id) {
+    return NextResponse.json(
+      {
+        error: {
+          code: 'FETCH_ERROR',
+          message: 'Post ID is required',
+        },
+      },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const result = await deleteLinkedInPostFromNotion(id);
+
+    const responseHeaders = {
+      'Cache-Control': 'private, no-store, no-cache, max-age=0, must-revalidate',
+      'Pragma': 'no-cache',
+    };
+
+    if (!result.success || result.error) {
+      return NextResponse.json(
+        {
+          error: result.error || {
+            code: 'FETCH_ERROR',
+            message: 'Failed to delete post from Notion Content Hub',
+          },
+        },
+        {
+          status: result.error?.code === 'NOT_FOUND_OR_FORBIDDEN' ? 404 : 500,
+          headers: responseHeaders,
+        }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Post successfully deleted and archived in Notion',
+      },
+      {
+        status: 200,
+        headers: responseHeaders,
+      }
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      {
+        error: {
+          code: 'FETCH_ERROR',
+          message: 'Failed to delete post',
+          details: error?.message || String(error),
+        },
+      },
+      { status: 500 }
     );
   }
 }

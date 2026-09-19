@@ -16,6 +16,7 @@ import {
   TagIcon,
   EyeIcon,
   EditIcon,
+  TrashIcon,
 } from '@/components/icons';
 
 export default function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -26,6 +27,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
   const [post, setPost] = useState<LinkedInPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
@@ -115,6 +118,29 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const dd = String(d.getDate()).padStart(2, '0');
     setScheduledDate(`${yyyy}-${mm}-${dd}`);
+  };
+
+  const handleDeletePost = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/posts/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setNotice(`Failed to delete post: ${data.error?.message || 'Server error'}`);
+      } else {
+        setShowDeleteModal(false);
+        setNotice('Post successfully deleted from Notion');
+        setTimeout(() => {
+          router.push('/posts');
+        }, 300);
+      }
+    } catch (err: any) {
+      setNotice('Network error: failed to delete post from Notion');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   // Construct updated post object for live preview
@@ -382,6 +408,10 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                   setScheduledDate(updated.scheduledDate || '');
                   setVertical(updated.vertical || 'GTM');
                 }}
+                onPostDeleted={() => {
+                  setNotice('Post deleted');
+                  router.push('/posts');
+                }}
               />
             )}
           </div>
@@ -390,20 +420,30 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
 
       {/* Floating Bottom Action Bar */}
       <footer className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 py-3 px-4 shadow-lg">
-        <div className="max-w-lg mx-auto flex items-center gap-3 justify-between">
+        <div className="max-w-lg mx-auto flex items-center gap-2.5 justify-between">
           <button
             type="button"
             onClick={() => router.push('/posts')}
-            className="px-4 py-2.5 rounded-xl text-xs font-semibold font-display text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 transition tap-bounce cursor-pointer"
+            className="px-3.5 py-2.5 rounded-xl text-xs font-semibold font-display text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 transition tap-bounce cursor-pointer"
           >
             Back to Feed
           </button>
 
           <button
             type="button"
+            onClick={() => setShowDeleteModal(true)}
+            className="px-3 py-2.5 rounded-xl text-xs font-semibold font-display text-rose-600 hover:text-rose-700 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 transition tap-bounce cursor-pointer flex items-center gap-1.5"
+            title="Delete this post from Notion and feed"
+          >
+            <TrashIcon className="w-4 h-4 text-rose-500" />
+            <span className="hidden sm:inline">Delete</span>
+          </button>
+
+          <button
+            type="button"
             onClick={handleSaveToNotion}
             disabled={saving}
-            className="flex-1 py-2.5 px-5 bg-[#0a66c2] hover:bg-[#004182] text-white rounded-xl text-xs sm:text-sm font-semibold font-display shadow-xs hover:shadow transition tap-bounce flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+            className="flex-1 py-2.5 px-4 sm:px-5 bg-[#0a66c2] hover:bg-[#004182] text-white rounded-xl text-xs sm:text-sm font-semibold font-display shadow-xs hover:shadow transition tap-bounce flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
           >
             {saving ? (
               <>
@@ -419,6 +459,74 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
           </button>
         </div>
       </footer>
+
+      {/* Delete Confirmation Popup Modal */}
+      {showDeleteModal && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => !deleting && setShowDeleteModal(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-detail-dialog-title"
+        >
+          <div
+            className="bg-white rounded-2xl border border-slate-200/90 shadow-2xl p-5 sm:p-6 max-w-sm w-full space-y-4 font-sans animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600 shrink-0">
+                <TrashIcon className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <h3
+                  id="delete-detail-dialog-title"
+                  className="text-base font-bold font-display text-slate-900"
+                >
+                  Delete LinkedIn Post?
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Are you sure you want to delete this post? This will permanently remove it from your Content Hub feed and archive it in your connected Notion database.
+                </p>
+              </div>
+            </div>
+
+            {name && (
+              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/60 text-xs text-slate-700 font-semibold truncate">
+                {name}
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 text-xs font-semibold font-display text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition tap-bounce cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={handleDeletePost}
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold font-display text-white bg-rose-600 hover:bg-rose-700 active:bg-rose-800 rounded-xl shadow-xs transition tap-bounce cursor-pointer disabled:opacity-60"
+              >
+                {deleting ? (
+                  <>
+                    <SyncIcon className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <TrashIcon className="w-3.5 h-3.5" />
+                    <span>Delete Post</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Toast Notice */}
       <Toast message={notice} onClose={() => setNotice(null)} />
