@@ -116,10 +116,10 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
       <button
         disabled
         aria-disabled="true"
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 bg-gray-100 border-2 border-gray-200 text-gray-400 font-semibold text-sm rounded-xl cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 border border-slate-200 text-slate-400 font-medium text-sm rounded-xl cursor-not-allowed select-none"
       >
-        <LinkedInIcon className="w-4 h-4" />
-        <span>LinkedIn connect (No URL)</span>
+        <LinkedInIcon className="w-4 h-4 opacity-50" />
+        <span>No LinkedIn contact available</span>
       </button>
     );
   }
@@ -130,21 +130,21 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
       <div className="flex flex-col items-stretch w-full">
         <button
           onClick={handleOnlyCopy}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-xl text-sm font-semibold transition-all border-2 tap-bounce ${
+          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold font-display transition-all shadow-xs tap-bounce ${
             copied
-              ? 'border-green-600 bg-green-50 text-green-700'
-              : 'border-primary bg-white text-primary hover:bg-blue-50/70 active:scale-[0.98]'
+              ? 'bg-emerald-600 text-white shadow-emerald-500/20'
+              : 'bg-[#0a66c2] hover:bg-[#004182] text-white active:scale-[0.98]'
           }`}
           title="Profile URL missing. Click to copy message."
         >
           {copied ? (
             <>
-              <CheckIcon className="w-4 h-4 text-green-600" />
+              <CheckIcon className="w-4 h-4 text-white" />
               <span>{feedbackText}</span>
             </>
           ) : (
             <>
-              <CopyIcon className="w-4 h-4" />
+              <CopyIcon className="w-4 h-4 text-white" />
               <span>Copy Message Draft</span>
             </>
           )}
@@ -160,10 +160,10 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
         href={linkedInUrl!}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 bg-white border-2 border-primary text-primary hover:bg-blue-50/70 font-semibold text-sm rounded-xl active:scale-[0.98] transition-all shadow-xs tap-bounce"
+        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0a66c2] hover:bg-[#004182] text-white font-semibold font-display text-sm rounded-xl active:scale-[0.98] transition-all shadow-xs hover:shadow tap-bounce"
       >
-        <LinkedInIcon className="w-4 h-4 text-primary" />
-        <span>LinkedIn connect</span>
+        <LinkedInIcon className="w-4 h-4 text-white" />
+        <span>Connect on LinkedIn</span>
       </a>
     );
   }
@@ -173,22 +173,22 @@ export function LinkedInAction({ message, linkedInUrl }: LinkedInActionProps) {
       <div className="flex flex-col items-stretch gap-2 w-full">
         <button
           onClick={handleCombinedAction}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-xl text-sm font-semibold transition-all border-2 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 shadow-xs tap-bounce ${
+          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold font-display tracking-tight transition-all active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#0a66c2] focus:ring-offset-2 shadow-xs hover:shadow tap-bounce ${
             copied
-              ? 'border-green-600 bg-green-50 text-green-700'
-              : 'border-primary bg-white text-primary hover:bg-blue-50/70'
+              ? 'bg-emerald-600 text-white shadow-emerald-500/20'
+              : 'bg-[#0a66c2] hover:bg-[#004182] text-white'
           }`}
           aria-label="Copy message draft and connect on LinkedIn"
         >
           {copied ? (
             <>
-              <CheckIcon className="w-4 h-4 text-green-600" />
+              <CheckIcon className="w-4 h-4 text-white" />
               <span>{feedbackText}</span>
             </>
           ) : (
             <>
-              <LinkedInIcon className="w-4 h-4 text-primary" />
-              <span>LinkedIn connect</span>
+              <LinkedInIcon className="w-4 h-4 text-white" />
+              <span>Copy & Connect on LinkedIn</span>
             </>
           )}
         </button>

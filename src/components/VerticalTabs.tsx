@@ -138,39 +138,64 @@ export function VerticalTabs({
   };
 
   return (
-    <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-md shadow-xs border-b border-outline-variant/60">
+    <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md shadow-xs border-b border-slate-200/80">
       <div
-        className="flex items-center gap-2.5 px-4 md:px-8 py-2.5"
+        className="flex items-center justify-between gap-3 px-3.5 sm:px-6 md:px-8 py-2.5 max-w-5xl mx-auto"
         aria-label="Filter & Sort"
       >
-        {/* Simple & Clean Minimalist Sort Button (Unclipped by horizontal scroll) */}
+        {/* Category Segmented Tabs */}
+        <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl flex-1 sm:flex-none">
+          {CATEGORIES.map((cat) => {
+            const isActive = activeTab === cat.id;
+
+            return (
+              <button
+                key={cat.id}
+                onClick={() => handleTabClick(cat)}
+                className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-[#0a66c2] tap-bounce cursor-pointer ${
+                  isActive
+                    ? 'bg-white text-slate-900 shadow-2xs font-bold border border-slate-200/60'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+                }`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <span className={isActive ? 'text-[#0a66c2]' : 'text-slate-400'}>
+                  {cat.icon}
+                </span>
+                <span>{cat.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Clean Sort Button */}
         <div className="relative flex-none" ref={sortRef}>
           <button
             type="button"
             onClick={() => setIsSortOpen((prev) => !prev)}
             aria-expanded={isSortOpen}
             aria-haspopup="listbox"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-300/80 shadow-2xs focus:outline-none focus:ring-2 focus:ring-primary select-none tap-bounce cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-200 shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#0a66c2] select-none tap-bounce cursor-pointer"
             title="Sort leads"
           >
-            <SlidersIcon className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
-            <span className="text-secondary font-medium">Sort:</span>
-            <span className="font-bold text-on-surface">{getSortBadgeLabel(sortBy)}</span>
+            <SlidersIcon className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+            <span className="text-slate-500 font-medium hidden sm:inline">Sort:</span>
+            <span className="font-bold text-slate-800">{getSortBadgeLabel(sortBy)}</span>
             <ChevronDownIcon
-              className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
+              className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
                 isSortOpen ? 'rotate-180' : ''
               }`}
             />
           </button>
 
-          {/* Floating Dropdown Menu (Optimized for Mobile & Desktop) */}
+          {/* Floating Dropdown Menu */}
           {isSortOpen && (
             <div
               role="listbox"
               aria-label="Sort options"
-              className="absolute left-0 top-full mt-2 z-50 w-60 max-w-[85vw] bg-white rounded-2xl shadow-2xl border border-outline-variant/80 p-1.5 space-y-1 animate-fade-in"
+              className="absolute right-0 top-full mt-2 z-50 w-60 max-w-[85vw] bg-white rounded-2xl shadow-xl border border-slate-200 p-1.5 space-y-1 animate-fade-in"
             >
-              <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-secondary/70 border-b border-outline-variant/40 mb-1">
+              <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1">
                 Sort Leads By
               </div>
 
@@ -187,55 +212,28 @@ export function VerticalTabs({
                     className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-medium transition-colors text-left tap-bounce cursor-pointer ${
                       isSelected
                         ? 'bg-blue-50 text-primary font-bold'
-                        : 'text-on-surface hover:bg-gray-50'
+                        : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className={isSelected ? 'text-primary' : 'text-secondary'}>
+                      <span className={isSelected ? 'text-[#0a66c2]' : 'text-slate-400'}>
                         {item.icon}
                       </span>
                       <div>
                         <div className="leading-snug">{item.label}</div>
-                        <div className="text-[10px] text-secondary font-normal">
+                        <div className="text-[10px] text-slate-500 font-normal">
                           {item.subtitle}
                         </div>
                       </div>
                     </div>
                     {isSelected && (
-                      <CheckIcon className="w-4 h-4 text-primary stroke-[2.5] flex-shrink-0" />
+                      <CheckIcon className="w-4 h-4 text-[#0a66c2] stroke-[2.5] flex-shrink-0" />
                     )}
                   </button>
                 );
               })}
             </div>
           )}
-        </div>
-
-        <div className="h-4 w-[1px] bg-outline-variant/60 flex-none mx-0.5" aria-hidden="true" />
-
-        {/* Category Pills: Horizontal scroll container */}
-        <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar tab-fade-right flex-1 py-0.5">
-          {CATEGORIES.map((cat) => {
-            const isActive = activeTab === cat.id;
-
-            return (
-              <button
-                key={cat.id}
-                onClick={() => handleTabClick(cat)}
-                className={`flex-none inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-primary tap-bounce cursor-pointer ${
-                  isActive
-                    ? 'bg-primary text-white border border-primary shadow-xs font-bold'
-                    : 'bg-white text-secondary hover:text-on-surface hover:border-outline border border-outline-variant/80'
-                }`}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                <span className={isActive ? 'text-white' : 'text-secondary'}>
-                  {cat.icon}
-                </span>
-                <span>{cat.label}</span>
-              </button>
-            );
-          })}
         </div>
       </div>
     </div>

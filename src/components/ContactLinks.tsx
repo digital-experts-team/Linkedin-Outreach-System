@@ -15,10 +15,10 @@ export function ContactLinks({ email, phone, linkedInUrl }: ContactLinksProps) {
       <a
         key="email"
         href={`mailto:${email}`}
-        className="inline-flex items-center gap-1.5 text-secondary hover:text-primary transition-colors text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary rounded py-0.5"
-        title="Email available"
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-primary border border-slate-200/70 transition-all text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary tap-bounce"
+        title={`Send email to ${email}`}
       >
-        <MailIcon className="w-3.5 h-3.5" />
+        <MailIcon className="w-3.5 h-3.5 opacity-80" />
         <span>Email</span>
       </a>
     );
@@ -29,10 +29,10 @@ export function ContactLinks({ email, phone, linkedInUrl }: ContactLinksProps) {
       <a
         key="phone"
         href={`tel:${phone}`}
-        className="inline-flex items-center gap-1.5 text-secondary hover:text-primary transition-colors text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary rounded py-0.5"
-        title="Phone available"
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-primary border border-slate-200/70 transition-all text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary tap-bounce"
+        title={`Call ${phone}`}
       >
-        <PhoneIcon className="w-3.5 h-3.5" />
+        <PhoneIcon className="w-3.5 h-3.5 opacity-80" />
         <span>Phone</span>
       </a>
     );
@@ -45,10 +45,10 @@ export function ContactLinks({ email, phone, linkedInUrl }: ContactLinksProps) {
         href={linkedInUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 text-secondary hover:text-primary transition-colors text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary rounded py-0.5"
-        title="LinkedIn profile available"
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-primary border border-slate-200/70 transition-all text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary tap-bounce"
+        title="Open LinkedIn profile"
       >
-        <LinkIcon className="w-3.5 h-3.5" />
+        <LinkIcon className="w-3.5 h-3.5 opacity-80" />
         <span>LinkedIn</span>
       </a>
     );
@@ -59,10 +59,9 @@ export function ContactLinks({ email, phone, linkedInUrl }: ContactLinksProps) {
   }
 
   return (
-    <div className="flex items-center gap-2.5 overflow-x-auto hide-scrollbar py-0.5 text-secondary text-xs whitespace-nowrap">
+    <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar py-0.5 whitespace-nowrap">
       {items.map((item, index) => (
         <React.Fragment key={index}>
-          {index > 0 && <span className="text-outline-variant select-none" aria-hidden="true">•</span>}
           {item}
         </React.Fragment>
       ))}

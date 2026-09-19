@@ -3,38 +3,37 @@ import { AlertCircleIcon, SyncIcon } from './icons';
 
 export function LeadCardSkeleton() {
   return (
-    <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm animate-pulse flex flex-col gap-3">
+    <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-card animate-pulse flex flex-col gap-3.5">
       {/* Top badges */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="h-5 w-24 bg-gray-200 rounded" />
-          <div className="h-5 w-20 bg-gray-200 rounded" />
+          <div className="h-5 w-24 bg-slate-200 rounded-lg" />
+          <div className="h-5 w-20 bg-slate-200 rounded-lg" />
         </div>
-        <div className="h-5 w-12 bg-gray-200 rounded-full" />
+        <div className="h-5 w-12 bg-slate-200 rounded-full" />
       </div>
 
       {/* Role and Subtitle */}
       <div className="space-y-2 mt-1">
-        <div className="h-6 w-3/4 bg-gray-200 rounded" />
-        <div className="h-4 w-1/2 bg-gray-200 rounded" />
+        <div className="h-6 w-3/4 bg-slate-200 rounded-lg" />
+        <div className="h-4 w-1/2 bg-slate-100 rounded" />
       </div>
 
       {/* Inset message preview */}
-      <div className="border-l-2 border-gray-300 pl-3 py-2 bg-gray-50 rounded-r-lg space-y-1.5">
-        <div className="h-3.5 w-full bg-gray-200 rounded" />
-        <div className="h-3.5 w-4/5 bg-gray-200 rounded" />
+      <div className="border-l-3 border-slate-300 pl-3.5 py-2.5 bg-slate-50/80 rounded-r-xl space-y-2">
+        <div className="h-3.5 w-full bg-slate-200/80 rounded" />
+        <div className="h-3.5 w-4/5 bg-slate-200/70 rounded" />
       </div>
 
       {/* Contact row */}
-      <div className="flex items-center gap-3 pt-1">
-        <div className="h-3.5 w-16 bg-gray-200 rounded" />
-        <div className="h-3.5 w-16 bg-gray-200 rounded" />
-        <div className="h-3.5 w-20 bg-gray-200 rounded" />
+      <div className="flex items-center gap-2.5 pt-1">
+        <div className="h-7 w-20 bg-slate-100 rounded-lg" />
+        <div className="h-7 w-24 bg-slate-100 rounded-lg" />
       </div>
 
       {/* CTA row */}
-      <div className="pt-2 border-t border-gray-100 flex justify-end">
-        <div className="h-10 w-48 bg-gray-200 rounded-lg" />
+      <div className="pt-3 border-t border-slate-100 flex justify-end">
+        <div className="h-10 w-48 bg-slate-200 rounded-xl" />
       </div>
     </div>
   );
@@ -56,20 +55,20 @@ interface EmptyStateProps {
 
 export function EmptyState({ onRetry }: EmptyStateProps) {
   return (
-    <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-8 text-center space-y-4 shadow-sm">
-      <div className="w-12 h-12 rounded-full bg-surface-container mx-auto flex items-center justify-center text-secondary">
+    <div className="bg-white border border-slate-200/90 rounded-2xl p-8 text-center space-y-4 shadow-card">
+      <div className="w-12 h-12 rounded-2xl bg-slate-100 mx-auto flex items-center justify-center text-slate-400">
         <AlertCircleIcon className="w-6 h-6" />
       </div>
       <div>
-        <h3 className="text-lg font-bold text-on-surface">No leads found</h3>
-        <p className="text-sm text-secondary mt-1 max-w-md mx-auto">
-          There are currently no leads in the connected Notion view.
+        <h3 className="text-lg font-bold font-display text-slate-900">No leads found</h3>
+        <p className="text-sm text-slate-500 mt-1 max-w-md mx-auto">
+          There are currently no leads in the connected Notion view for this filter.
         </p>
       </div>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface text-sm font-semibold rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold font-display rounded-xl transition-colors tap-bounce cursor-pointer shadow-2xs"
         >
           <SyncIcon className="w-4 h-4" />
           <span>Refresh</span>
@@ -85,29 +84,29 @@ interface ConfigRequiredStateProps {
 
 export function ConfigRequiredState({ onRetry }: ConfigRequiredStateProps) {
   return (
-    <div className="bg-surface-container-lowest border border-primary/30 rounded-xl p-6 md:p-8 space-y-5 shadow-sm">
+    <div className="bg-white border border-blue-200/80 rounded-2xl p-6 md:p-8 space-y-5 shadow-card">
       <div className="flex items-start gap-4">
-        <div className="p-2.5 rounded-full bg-blue-50 text-primary flex-shrink-0">
-          <AlertCircleIcon className="w-6 h-6 text-primary" />
+        <div className="p-2.5 rounded-2xl bg-blue-50 text-[#0a66c2] shrink-0 border border-blue-100">
+          <AlertCircleIcon className="w-6 h-6 text-[#0a66c2]" />
         </div>
         <div className="space-y-1">
-          <h3 className="text-lg font-bold text-on-surface">Notion Configuration Required</h3>
-          <p className="text-sm text-secondary leading-relaxed">
+          <h3 className="text-lg font-bold font-display text-slate-900">Notion Configuration Required</h3>
+          <p className="text-sm text-slate-600 leading-relaxed">
             The app is connected to the <strong>GTM Automation - CRM</strong> database, but requires a Notion Integration Token at runtime to fetch live leads.
           </p>
         </div>
       </div>
 
-      <div className="bg-surface-container-low rounded-lg p-4 border border-outline-variant text-sm space-y-3">
-        <p className="font-semibold text-on-surface">Quick Setup Steps:</p>
-        <ol className="list-decimal list-inside space-y-2 text-on-surface-variant">
+      <div className="bg-slate-50 rounded-xl p-4 border border-slate-200/80 text-sm space-y-3">
+        <p className="font-semibold font-display text-slate-900">Quick Setup Steps:</p>
+        <ol className="list-decimal list-inside space-y-2 text-slate-700">
           <li>
             Create a Notion internal integration at{' '}
             <a
               href="https://www.notion.so/profile/integrations"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-primary underline font-medium"
+              className="text-[#0a66c2] hover:underline font-medium"
             >
               notion.so/profile/integrations
             </a>
@@ -116,8 +115,8 @@ export function ConfigRequiredState({ onRetry }: ConfigRequiredStateProps) {
             In Notion, open the <strong>GTM Automation - CRM</strong> database, click <strong>••• &gt; Connections &gt; Add connections</strong>, and select your integration.
           </li>
           <li>
-            Add your token to <code className="bg-white px-1.5 py-0.5 rounded border border-gray-300 font-mono text-xs">.env.local</code>:
-            <pre className="bg-white p-2.5 mt-1 rounded border border-gray-300 font-mono text-xs overflow-x-auto">
+            Add your token to <code className="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-xs text-slate-800">.env.local</code>:
+            <pre className="bg-white p-2.5 mt-1 rounded-lg border border-slate-200 font-mono text-xs overflow-x-auto text-slate-800">
               NOTION_TOKEN=ntn_your_integration_token_here
             </pre>
           </li>
@@ -125,13 +124,13 @@ export function ConfigRequiredState({ onRetry }: ConfigRequiredStateProps) {
       </div>
 
       <div className="flex items-center justify-between pt-2">
-        <span className="text-xs text-secondary">
-          Target Database: <code className="font-mono text-xs">3d67f6ba-af95-80a3-8e5d-d540076d4370</code>
+        <span className="text-xs text-slate-400">
+          Target Database: <code className="font-mono text-xs text-slate-500">3d67f6ba-af95-80a3-8e5d-d540076d4370</code>
         </span>
         {onRetry && (
           <button
             onClick={onRetry}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary font-semibold text-sm rounded-lg hover:opacity-90 active:scale-95 transition-all shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 bg-[#0a66c2] text-white font-semibold font-display text-xs sm:text-sm rounded-xl hover:bg-[#004182] active:scale-95 transition-all shadow-xs cursor-pointer"
           >
             <SyncIcon className="w-4 h-4" />
             <span>Check Connection</span>
@@ -150,14 +149,14 @@ interface ErrorStateProps {
 
 export function ErrorState({ message, details, onRetry }: ErrorStateProps) {
   return (
-    <div className="bg-surface-container-lowest border border-error/30 rounded-xl p-6 md:p-8 space-y-4 shadow-sm text-center">
-      <div className="w-12 h-12 rounded-full bg-error-container mx-auto flex items-center justify-center text-error">
+    <div className="bg-white border border-rose-200/80 rounded-2xl p-6 md:p-8 space-y-4 shadow-card text-center">
+      <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-100 mx-auto flex items-center justify-center text-rose-600">
         <AlertCircleIcon className="w-6 h-6" />
       </div>
       <div>
-        <h3 className="text-lg font-bold text-on-surface">{message}</h3>
+        <h3 className="text-lg font-bold font-display text-slate-900">{message}</h3>
         {details && (
-          <p className="text-sm text-secondary mt-1.5 max-w-md mx-auto leading-relaxed">
+          <p className="text-sm text-slate-500 mt-1.5 max-w-md mx-auto leading-relaxed">
             {details}
           </p>
         )}
@@ -166,7 +165,7 @@ export function ErrorState({ message, details, onRetry }: ErrorStateProps) {
         <div className="pt-2">
           <button
             onClick={onRetry}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-on-primary font-semibold text-sm rounded-lg hover:opacity-90 active:scale-95 transition-all shadow-sm"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0a66c2] text-white font-semibold font-display text-xs sm:text-sm rounded-xl hover:bg-[#004182] active:scale-95 transition-all shadow-xs cursor-pointer"
           >
             <SyncIcon className="w-4 h-4" />
             <span>Retry Connection</span>

@@ -74,7 +74,7 @@ export function LeadCard({ lead }: LeadCardProps) {
   return (
     <article
       onClick={handleCardClick}
-      className="bg-white border border-outline-variant/80 rounded-2xl px-4 py-[18px] sm:px-5 sm:py-[22px] shadow-xs flex flex-col gap-3.5 transition-all duration-150 hover:shadow-md hover:border-primary/40 active:scale-[0.99] cursor-pointer group select-none"
+      className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-card hover:shadow-card-hover hover:border-blue-300/80 transition-all duration-200 flex flex-col gap-3.5 cursor-pointer group select-none relative"
       role="link"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -84,15 +84,15 @@ export function LeadCard({ lead }: LeadCardProps) {
       }}
       aria-label={`View details for ${lead.role}`}
     >
-      {/* 1. Top Row: Score on left first, Status second, date (16 Sept) on right */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex flex-wrap items-center gap-2">
+      {/* 1. Top Row: Score on left, Status, and Date on right */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-2">
           <ScoreBadge score={lead.score} />
           <StatusBadge status={lead.linkedInStatus} />
         </div>
         {displayDate && (
-          <span className="inline-flex items-center gap-1.5 text-xs text-secondary font-medium bg-gray-50 px-2.5 py-1 rounded border border-outline-variant/60 flex-shrink-0">
-            <CalendarIcon className="w-3.5 h-3.5 text-secondary/80 flex-shrink-0" />
+          <span className="inline-flex items-center gap-1.5 text-xs text-slate-500 font-medium bg-slate-50 px-2.5 py-0.5 rounded-full border border-slate-200/70 flex-shrink-0">
+            <CalendarIcon className="w-3 h-3 text-slate-400 flex-shrink-0" />
             <span>{displayDate}</span>
           </span>
         )}
@@ -100,32 +100,36 @@ export function LeadCard({ lead }: LeadCardProps) {
 
       {/* 2. Role-First Visual Anchor & Candidate/Company Metadata */}
       <div>
-        <h3 className="text-lg md:text-xl font-bold text-on-surface leading-snug tracking-tight group-hover:text-primary transition-colors">
+        <h3 className="text-base sm:text-lg font-bold font-display text-slate-900 leading-snug tracking-tight group-hover:text-[#0a66c2] transition-colors">
           {lead.role}
         </h3>
         {hasSubtitle && (
-          <p className="text-sm text-secondary mt-1 font-normal">
+          <p className="text-xs sm:text-sm text-slate-600 mt-1 flex items-center gap-1.5 flex-wrap">
             {lead.postedBy && (
-              <span className="font-semibold text-on-surface">{lead.postedBy}</span>
+              <span className="font-semibold text-slate-800">{lead.postedBy}</span>
             )}
             {lead.postedBy && lead.company && (
-              <span className="mx-1.5 select-none text-outline-variant">·</span>
+              <span className="text-slate-300 select-none">·</span>
             )}
-            {lead.company && <span>{lead.company}</span>}
+            {lead.company && (
+              <span className="inline-flex items-center gap-1 text-slate-600 font-medium">
+                {lead.company}
+              </span>
+            )}
           </p>
         )}
       </div>
 
       {/* 3. Insight / Scraped Trigger Hook */}
       {triggerHook && (
-        <div className="border-l-2 border-primary/50 pl-3.5 py-2 my-0.5 bg-surface-container-low/70 rounded-r-lg">
-          <p className="text-[15px] md:text-base text-on-surface line-clamp-2 font-medium leading-relaxed">
+        <div className="bg-slate-50/80 border-l-[3px] border-[#0a66c2] px-3.5 py-2.5 rounded-r-xl">
+          <p className="text-xs sm:text-sm text-slate-700 line-clamp-2 font-normal leading-relaxed italic">
             "{triggerHook}"
           </p>
         </div>
       )}
 
-      {/* 4. Single-Line Contact Availability (Icons & Labels Only) */}
+      {/* 4. Single-Line Contact Availability */}
       <div onClick={(e) => e.stopPropagation()}>
         <ContactLinks
           email={lead.primaryContactEmail}
@@ -134,9 +138,9 @@ export function LeadCard({ lead }: LeadCardProps) {
         />
       </div>
 
-      {/* 5. Card Action CTA (Outlined 2px Primary Blue Button) */}
+      {/* 5. Card Action CTA */}
       <div
-        className="pt-2 border-t border-outline-variant/50 flex w-full"
+        className="pt-2.5 border-t border-slate-100 flex w-full"
         onClick={(e) => e.stopPropagation()}
       >
         <LinkedInAction

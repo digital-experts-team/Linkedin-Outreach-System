@@ -83,9 +83,30 @@ export default function PostsPage() {
       {/* Main Flow Container */}
       <main className="flex-1 flex flex-col w-full pb-28 px-3.5 sm:px-4 max-w-lg mx-auto gap-4">
         {/* Top Sticky Filter Controls: Parent Verticals Toggle + Child Status Filter */}
-        <section className="sticky top-0 z-30 -mx-3.5 sm:-mx-4 px-3.5 sm:px-4 pt-3 pb-3 bg-slate-50/95 backdrop-blur-md border-b border-slate-200/80 flex flex-col gap-2.5">
+        <section className="sticky top-0 z-30 -mx-3.5 sm:-mx-4 px-3.5 sm:px-4 pt-3 pb-3 bg-white/95 backdrop-blur-md border-b border-slate-200/80 flex flex-col gap-2.5">
+          {/* Page Title & Refresh */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-lg sm:text-xl font-bold font-display text-slate-900 tracking-tight">
+                Content Hub
+              </h1>
+              <p className="text-xs text-slate-500">
+                Scheduled & draft posts synced with Notion
+              </p>
+            </div>
+            <button
+              onClick={() => fetchPosts(activeVertical, activeFilter)}
+              disabled={loading}
+              className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors border border-slate-200/80 shadow-2xs tap-bounce cursor-pointer"
+              title="Refresh posts"
+              aria-label="Refresh posts"
+            >
+              <SyncIcon className={`w-4 h-4 ${loading ? 'animate-spin text-[#0a66c2]' : ''}`} />
+            </button>
+          </div>
+
           {/* 1. Parent Toggle: Verticals */}
-          <div className="flex items-center gap-1.5 p-1 bg-slate-200/80 rounded-2xl shadow-2xs">
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200/60">
             {verticalOptions.map((v) => {
               const isSelected = activeVertical.toLowerCase() === v.name.toLowerCase();
               return (
@@ -93,19 +114,19 @@ export default function PostsPage() {
                   key={v.name}
                   type="button"
                   onClick={() => setActiveVertical(v.name)}
-                  className={`flex-1 py-2 px-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all text-center cursor-pointer tap-bounce flex items-center justify-center gap-1.5 ${
+                  className={`flex-1 py-1.5 px-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-center cursor-pointer tap-bounce flex items-center justify-center gap-1.5 font-display ${
                     isSelected
-                      ? 'bg-white text-slate-900 shadow-xs font-bold'
+                      ? 'bg-white text-slate-900 shadow-2xs font-bold border border-slate-200/50'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
                   }`}
                 >
                   <span className="truncate">{v.name}</span>
                   {v.count > 0 && (
                     <span
-                      className={`text-[10.5px] px-1.5 py-0.5 rounded-full font-bold transition-colors ${
+                      className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold transition-colors ${
                         isSelected
-                          ? 'bg-blue-50 text-blue-600'
-                          : 'bg-slate-300/70 text-slate-700'
+                          ? 'bg-blue-50 text-[#0a66c2]'
+                          : 'bg-slate-200 text-slate-600'
                       }`}
                     >
                       {v.count}
@@ -117,12 +138,12 @@ export default function PostsPage() {
           </div>
 
           {/* 2. Child Filter: Status (All, Scheduled, Drafts, Published) */}
-          <div className="bg-slate-200/60 p-1 rounded-xl flex items-center text-xs font-medium select-none">
+          <div className="bg-slate-100/90 p-1 rounded-xl flex items-center text-xs font-semibold select-none border border-slate-200/50">
             <button
               onClick={() => setActiveFilter('All')}
-              className={`flex-1 py-1.5 rounded-lg transition-all text-center cursor-pointer tap-bounce ${
+              className={`flex-1 py-1.5 rounded-lg transition-all text-center cursor-pointer tap-bounce font-display ${
                 activeFilter === 'All'
-                  ? 'bg-white text-blue-600 font-bold shadow-xs'
+                  ? 'bg-white text-[#0a66c2] font-bold shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -131,9 +152,9 @@ export default function PostsPage() {
 
             <button
               onClick={() => setActiveFilter('Scheduled')}
-              className={`flex-1 py-1.5 rounded-lg transition-all text-center cursor-pointer tap-bounce ${
+              className={`flex-1 py-1.5 rounded-lg transition-all text-center cursor-pointer tap-bounce font-display ${
                 activeFilter === 'Scheduled'
-                  ? 'bg-white text-blue-600 font-bold shadow-xs'
+                  ? 'bg-white text-[#0a66c2] font-bold shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -142,9 +163,9 @@ export default function PostsPage() {
 
             <button
               onClick={() => setActiveFilter('Drafts')}
-              className={`flex-1 py-1.5 rounded-lg transition-all text-center cursor-pointer tap-bounce ${
+              className={`flex-1 py-1.5 rounded-lg transition-all text-center cursor-pointer tap-bounce font-display ${
                 activeFilter === 'Drafts'
-                  ? 'bg-white text-blue-600 font-bold shadow-xs'
+                  ? 'bg-white text-[#0a66c2] font-bold shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -153,9 +174,9 @@ export default function PostsPage() {
 
             <button
               onClick={() => setActiveFilter('Published')}
-              className={`flex-1 py-1.5 rounded-lg transition-all text-center cursor-pointer tap-bounce ${
+              className={`flex-1 py-1.5 rounded-lg transition-all text-center cursor-pointer tap-bounce font-display ${
                 activeFilter === 'Published'
-                  ? 'bg-white text-blue-600 font-bold shadow-xs'
+                  ? 'bg-white text-[#0a66c2] font-bold shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >

@@ -136,7 +136,7 @@ export function LinkedInPostCard({ post, onShowNotice, onPostUpdated }: LinkedIn
 
   return (
     <>
-      <article className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col transition-all hover:shadow-md hover:border-primary/40">
+      <article className="bg-white rounded-2xl border border-slate-200/90 shadow-card hover:shadow-card-hover hover:border-blue-300/80 transition-all overflow-hidden flex flex-col">
         {/* 1. LinkedIn Author Header with Status & Copy Icon at Top */}
         <div className="p-4 pb-3 flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 min-w-0">
@@ -144,18 +144,18 @@ export function LinkedInPostCard({ post, onShowNotice, onPostUpdated }: LinkedIn
               <img
                 src={post.authorAvatarUrl}
                 alt={post.authorName || 'Author avatar'}
-                className="w-11 h-11 rounded-full object-cover shrink-0 ring-1 ring-slate-100 shadow-2xs"
+                className="w-11 h-11 rounded-full object-cover shrink-0 ring-2 ring-slate-100 shadow-2xs"
                 loading="lazy"
               />
             ) : (
-              <div className="w-11 h-11 rounded-full bg-blue-100 text-primary font-bold flex items-center justify-center text-sm shrink-0">
+              <div className="w-11 h-11 rounded-full bg-blue-50 text-[#0a66c2] font-bold font-display flex items-center justify-center text-sm shrink-0 ring-2 ring-blue-100/60">
                 {(post.authorName || 'AV').slice(0, 2).toUpperCase()}
               </div>
             )}
 
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[14px] font-bold text-slate-900 truncate">
+                <span className="text-[14px] font-bold font-display text-slate-900 truncate">
                   {post.authorName || 'Alex Vance'}
                 </span>
                 <span className="text-slate-400 text-xs shrink-0 font-normal">• You</span>
@@ -167,10 +167,10 @@ export function LinkedInPostCard({ post, onShowNotice, onPostUpdated }: LinkedIn
 
               {/* Status, Vertical, and Date placed in Top Header */}
               <div className="flex items-center gap-1.5 text-slate-500 text-[11px] mt-1 font-medium flex-wrap">
-                <span className="text-blue-600 font-semibold">{displayDate}</span>
+                <span className="text-[#0a66c2] font-semibold">{displayDate}</span>
                 <span>•</span>
                 <span
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                     isScheduled
                       ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                       : isPublished
@@ -203,7 +203,7 @@ export function LinkedInPostCard({ post, onShowNotice, onPostUpdated }: LinkedIn
             <button
               type="button"
               onClick={handleCopyText}
-              className="p-2 rounded-xl text-slate-500 hover:text-primary hover:bg-blue-50 transition-all tap-bounce cursor-pointer border border-transparent hover:border-blue-100"
+              className="p-2 rounded-xl text-slate-400 hover:text-[#0a66c2] hover:bg-blue-50 transition-all tap-bounce cursor-pointer border border-transparent hover:border-blue-100"
               title="Copy post text"
               aria-label="Copy post text"
             >
@@ -357,15 +357,15 @@ export function LinkedInPostCard({ post, onShowNotice, onPostUpdated }: LinkedIn
         )}
 
         {/* 4. Streamlined Quiet Footer */}
-        <div className="px-4 py-2.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-2 mt-2">
+        <div className="px-4 py-2.5 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between gap-2 mt-2">
           <div className="flex items-center gap-2">
             {post.ctaKeyword && (
-              <span className="font-bold text-blue-600 bg-blue-50 border border-blue-200/70 px-2 py-0.5 rounded-md text-[11px]">
+              <span className="font-bold text-[#0a66c2] bg-blue-50/80 border border-blue-200/70 px-2 py-0.5 rounded-md text-[11px] font-display">
                 CTA: "{post.ctaKeyword}"
               </span>
             )}
             {post.angleType && (
-              <span className="text-[11px] font-medium text-secondary bg-white px-2 py-0.5 rounded border border-outline-variant/60 hidden sm:inline-block">
+              <span className="text-[11px] font-medium text-slate-500 bg-white px-2 py-0.5 rounded-md border border-slate-200/70 hidden sm:inline-block">
                 {post.angleType}
               </span>
             )}
@@ -374,10 +374,10 @@ export function LinkedInPostCard({ post, onShowNotice, onPostUpdated }: LinkedIn
           <div className="flex items-center gap-2">
             <Link
               href={`/posts/${post.id}`}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition-all tap-bounce cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold font-display text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl shadow-2xs transition-all tap-bounce cursor-pointer"
               title="Open full edit page to change date, status, and copy in Notion"
             >
-              <EditIcon className="w-3.5 h-3.5 text-slate-500" />
+              <EditIcon className="w-3.5 h-3.5 text-slate-400" />
               <span>Edit Post</span>
             </Link>
 
@@ -385,10 +385,10 @@ export function LinkedInPostCard({ post, onShowNotice, onPostUpdated }: LinkedIn
               <button
                 type="button"
                 onClick={() => setLightboxImage(post.images[0].url)}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition-all tap-bounce cursor-pointer"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium font-display text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl shadow-2xs transition-all tap-bounce cursor-pointer"
                 title="Preview full graphic"
               >
-                <EyeIcon className="w-3.5 h-3.5 text-slate-500" />
+                <EyeIcon className="w-3.5 h-3.5 text-slate-400" />
                 <span className="hidden sm:inline">Preview</span>
               </button>
             )}

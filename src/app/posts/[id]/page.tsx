@@ -222,8 +222,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
         {activeTab === 'edit' ? (
           <div className="space-y-4">
             {/* 1. Status Dropdown Card */}
-            <section className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs space-y-2.5">
-              <label htmlFor="post-status-select" className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+            <section className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-card space-y-2.5">
+              <label htmlFor="post-status-select" className="text-xs font-bold font-display text-slate-700 flex items-center gap-1.5">
                 <TagIcon className="w-3.5 h-3.5 text-slate-400" />
                 <span>Post Status</span>
               </label>
@@ -232,7 +232,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                   id="post-status-select"
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-slate-800 font-semibold cursor-pointer appearance-none pr-10"
+                  className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0a66c2] focus:bg-white text-slate-800 font-semibold cursor-pointer appearance-none pr-10"
                 >
                   <option value="Drafted">Drafted</option>
                   <option value="Scheduled">Scheduled</option>
@@ -249,9 +249,9 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
             </section>
 
             {/* 2. Scheduled Date Card */}
-            <section className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs space-y-2.5">
+            <section className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-card space-y-2.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <label className="text-xs font-bold font-display text-slate-700 flex items-center gap-1.5">
                   <CalendarIcon className="w-3.5 h-3.5 text-slate-400" />
                   <span>Scheduled Date</span>
                 </label>
@@ -259,7 +259,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                   <button
                     type="button"
                     onClick={() => setScheduledDate('')}
-                    className="text-[11px] text-slate-400 hover:text-red-600 transition cursor-pointer"
+                    className="text-[11px] font-medium text-slate-400 hover:text-red-600 transition cursor-pointer"
                   >
                     Clear Date
                   </button>
@@ -270,7 +270,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                 type="date"
                 value={scheduledDate}
                 onChange={(e) => setScheduledDate(e.target.value)}
-                className="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-slate-800 font-medium"
+                className="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0a66c2] focus:bg-white text-slate-800 font-medium"
               />
 
               {/* Quick Date Presets */}
@@ -300,10 +300,9 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
             </section>
 
             {/* 3. Post Content (Full Copy) */}
-            <section className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs space-y-2.5">
+            <section className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-card space-y-2.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                  <span>✍️</span>
+                <label className="text-xs font-bold font-display text-slate-700 flex items-center gap-1.5">
                   <span>Post Copy (LinkedIn Text)</span>
                 </label>
                 <button
@@ -329,7 +328,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                 value={fullCopy}
                 onChange={(e) => setFullCopy(e.target.value)}
                 rows={Math.max(10, fullCopy.split('\n').length + 2)}
-                className="w-full p-3.5 text-[14px] text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white leading-relaxed font-normal resize-y whitespace-pre-wrap select-text"
+                className="w-full p-3.5 text-[14px] text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0a66c2] focus:bg-white leading-relaxed font-normal resize-y whitespace-pre-wrap select-text font-sans"
                 placeholder="Write or paste your LinkedIn post copy here..."
               />
 
@@ -344,9 +343,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
 
             {/* 6. Attached Media Display (Read-only) */}
             {post.images && post.images.length > 0 && (
-              <section className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs space-y-2.5">
-                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                  <span>🖼️</span>
+              <section className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-card space-y-2.5">
+                <label className="text-xs font-bold font-display text-slate-700 flex items-center gap-1.5">
                   <span>Attached Graphic</span>
                 </label>
                 <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
@@ -362,12 +360,12 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
         ) : (
           /* Live LinkedIn Card Preview Tab */
           <div className="space-y-4">
-            <div className="p-3 bg-blue-50/80 rounded-xl border border-blue-200/70 text-xs text-blue-800 flex items-center justify-between">
+            <div className="p-3 bg-blue-50/80 rounded-xl border border-blue-200/70 text-xs text-[#0a66c2] flex items-center justify-between font-medium">
               <span>This is how your post appears in the feed with your current edits.</span>
               <button
                 type="button"
                 onClick={() => setActiveTab('edit')}
-                className="font-bold underline hover:text-blue-900 ml-2 cursor-pointer"
+                className="font-bold underline hover:text-[#004182] ml-2 cursor-pointer"
               >
                 Continue editing
               </button>
@@ -391,12 +389,12 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
       </main>
 
       {/* Floating Bottom Action Bar */}
-      <footer className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 py-3 px-4 shadow-lg">
+      <footer className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 py-3 px-4 shadow-lg">
         <div className="max-w-lg mx-auto flex items-center gap-3 justify-between">
           <button
             type="button"
             onClick={() => router.push('/posts')}
-            className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 transition tap-bounce cursor-pointer"
+            className="px-4 py-2.5 rounded-xl text-xs font-semibold font-display text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 transition tap-bounce cursor-pointer"
           >
             Back to Feed
           </button>
@@ -405,7 +403,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
             type="button"
             onClick={handleSaveToNotion}
             disabled={saving}
-            className="flex-1 py-2.5 px-5 bg-primary hover:bg-primary/90 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition tap-bounce flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+            className="flex-1 py-2.5 px-5 bg-[#0a66c2] hover:bg-[#004182] text-white rounded-xl text-xs sm:text-sm font-semibold font-display shadow-xs hover:shadow transition tap-bounce flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
           >
             {saving ? (
               <>

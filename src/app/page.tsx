@@ -139,7 +139,33 @@ export default function LeadsPage() {
         />
 
         {/* Lead List Canvas */}
-        <main className="flex-1 max-w-5xl w-full mx-auto px-3.5 sm:px-6 md:px-8 py-4 sm:py-5 space-y-3.5 sm:space-y-4">
+        <main className="flex-1 max-w-5xl w-full mx-auto px-3.5 sm:px-6 md:px-8 py-4 sm:py-6 space-y-4">
+          {/* Header Row: Title & Active Count */}
+          <div className="flex items-center justify-between pb-1">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold font-display text-slate-900 tracking-tight">
+                {activeTab === 'ai_video' ? 'AI Video & Hiring Leads' : 'GTM & Sales Pipeline'}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                Targeted prospect signals and tailored outreach copy
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:inline-flex text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                {displayedLeads.length} {displayedLeads.length === 1 ? 'Lead' : 'Leads'}
+              </span>
+              <button
+                onClick={() => fetchLeads(activeTab)}
+                disabled={loading}
+                className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors border border-slate-200/80 shadow-2xs tap-bounce cursor-pointer"
+                title="Refresh leads"
+                aria-label="Refresh leads"
+              >
+                <SyncIcon className={`w-4 h-4 ${loading ? 'animate-spin text-[#0a66c2]' : ''}`} />
+              </button>
+            </div>
+          </div>
+
           {loading && <LoadingState />}
 
           {!loading && error?.code === 'CONFIG_REQUIRED' && (
@@ -171,11 +197,11 @@ export default function LeadsPage() {
                   <button
                     onClick={handleLoadMore}
                     disabled={loadingMore}
-                    className="flex items-center gap-2 px-6 py-3 bg-white hover:bg-surface-container text-on-surface font-semibold text-sm rounded-xl transition-all border border-outline-variant/80 disabled:opacity-60 shadow-xs tap-bounce"
+                    className="flex items-center gap-2 px-6 py-2.5 bg-white hover:bg-slate-50 text-slate-800 font-semibold font-display text-sm rounded-xl transition-all border border-slate-200 disabled:opacity-60 shadow-xs hover:shadow tap-bounce cursor-pointer"
                   >
                     {loadingMore ? (
                       <>
-                        <SyncIcon className="w-4 h-4 animate-spin text-primary" />
+                        <SyncIcon className="w-4 h-4 animate-spin text-[#0a66c2]" />
                         <span>Loading more leads...</span>
                       </>
                     ) : (
