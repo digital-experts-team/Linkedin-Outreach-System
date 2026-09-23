@@ -1,0 +1,6 @@
+{
+  "name": "LinkedIn Outreach System",
+  "description": "Responsive Notion-backed CRM & LinkedIn Content Studio with Viral Photo Radar, AI decision insights, and 1-click strategic tagging.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

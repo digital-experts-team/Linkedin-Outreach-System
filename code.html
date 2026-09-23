@@ -1,0 +1,295 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Outreach Pilot - Leads</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9f9f9;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .tab-fade-right {
+            mask-image: linear-gradient(to right, black 85%, transparent 100%);
+        }
+        .active-tab-indicator {
+            position: relative;
+        }
+        .active-tab-indicator::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #004ac6;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#474746",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "surface-tint": "#0053db",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "inverse-surface": "#2f3131",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "on-tertiary-container": "#ffede6",
+                        "on-secondary-container": "#636262",
+                        "on-primary-fixed": "#00174b",
+                        "inverse-on-surface": "#f0f1f1",
+                        "on-primary-container": "#eeefff",
+                        "surface-container-low": "#f3f3f3",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#dadada",
+                        "surface-container": "#eeeeee",
+                        "primary-container": "#2563eb",
+                        "tertiary": "#943700",
+                        "on-tertiary": "#ffffff",
+                        "on-surface": "#1a1c1c",
+                        "surface": "#f9f9f9",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "secondary": "#5f5e5e",
+                        "primary-fixed": "#dbe1ff",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#434655",
+                        "inverse-primary": "#b4c5ff",
+                        "secondary-container": "#e2dfde",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e8e8e8",
+                        "primary": "#004ac6",
+                        "secondary-fixed": "#e5e2e1",
+                        "surface-bright": "#f9f9f9",
+                        "outline": "#737686",
+                        "on-background": "#1a1c1c",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#ffdbcd",
+                        "background": "#f9f9f9",
+                        "surface-container-highest": "#e2e2e2",
+                        "surface-variant": "#e2e2e2",
+                        "outline-variant": "#c3c6d7",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#bc4800",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#360f00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "gutter": "16px",
+                        "base": "4px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "margin-mobile": "16px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "display-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 bg-surface-container-lowest border-b border-outline-variant">
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-primary hover:bg-surface-container transition-colors p-2 rounded-full" data-icon="menu">menu</button>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">Outreach Pilot</h1>
+</div>
+<button class="bg-primary-container text-on-primary-container font-label-md text-label-md px-4 py-2 rounded-lg hover:opacity-80 active:scale-95 transition-all">
+            ADD LEAD
+        </button>
+</header>
+<main class="pt-16 pb-24 min-h-screen">
+<!-- Sticky Sub-Header with Tabs & Filters -->
+<div class="sticky top-16 z-40 bg-surface-container-lowest shadow-sm">
+<!-- Categories Tab Bar -->
+<div class="flex overflow-x-auto hide-scrollbar tab-fade-right px-margin-mobile md:px-margin-desktop border-b border-outline-variant"><button class="flex-none px-4 py-3.5 font-label-md text-label-md active-tab-indicator text-primary whitespace-nowrap">All</button><button class="flex-none px-4 py-3.5 font-label-md text-label-md text-secondary hover:text-primary whitespace-nowrap transition-colors">AI Video &amp; Hiring</button><button class="flex-none px-4 py-3.5 font-label-md text-label-md text-secondary hover:text-primary whitespace-nowrap transition-colors">GTM &amp; Sales</button><button class="flex-none px-4 py-3.5 font-label-md text-label-md text-secondary hover:text-primary whitespace-nowrap transition-colors">AEO/GEO</button><button class="flex-none px-4 py-3.5 font-label-md text-label-md text-secondary hover:text-primary whitespace-nowrap transition-colors">AI Automation</button></div>
+<!-- Filter Chips -->
+
+</div>
+<!-- Leads List Canvas -->
+<div class="px-margin-mobile md:px-margin-desktop py-lg max-w-5xl mx-auto space-y-4"><!-- Lead Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer flex flex-col gap-3 group" onclick="console.log('Open Lead Detail: Alex Thompson')">
+    <div class="flex items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-2"><span class="text-xs font-semibold uppercase tracking-wider text-primary bg-blue-100/70 px-2 py-0.5 rounded">AI Video &amp; Hiring</span><span class="text-xs font-semibold uppercase tracking-wider text-on-secondary-fixed bg-secondary-fixed px-2 py-0.5 rounded">New Lead</span></div>
+        <div class="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-green-100 text-[#16A34A] font-bold text-label-sm">
+            <span class="material-symbols-outlined text-[16px]">star</span>
+            <span class="">8.4</span>
+        </div>
+    </div>
+    <div>
+        <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface group-hover:text-primary transition-colors">Director of Operations</h3>
+        <p class="font-body-md text-body-md text-secondary mt-0.5">
+            <span class="font-bold text-on-surface">Alex Thompson</span> · <span class="">VelocityScale</span>
+        </p>
+    </div>
+    <div class="border-l-2 border-primary/30 pl-3 py-1 my-0.5 bg-surface-container-low/50 rounded-r-lg">
+        <p class="font-body-md text-body-md text-on-surface-variant line-clamp-2 italic">
+            "Interested in scaling their sales team using AI video personalization. Currently vetting 3 vendors for Q4 implementation of automated hiring outreach."
+        </p>
+    </div>
+    <div class="flex items-center gap-3 overflow-x-auto hide-scrollbar py-1 text-secondary font-label-sm text-label-sm whitespace-nowrap"><span class="flex items-center gap-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[16px]">mail</span>Email</span><span class="text-outline-variant">•</span><span class="flex items-center gap-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[16px]">call</span>Phone</span><span class="text-outline-variant">•</span><span class="flex items-center gap-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[16px]">link</span>LinkedIn</span></div>
+    <div class="pt-2 border-t border-outline-variant/60 flex justify-end" onclick="event.stopPropagation()">
+        <button onclick="event.stopPropagation(); navigator.clipboard ? navigator.clipboard.writeText('Alex Thompson | Director of Operations @ VelocityScale | alex@velocityscale.io') : null; window.open('https://www.linkedin.com', '_blank');" class="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-on-primary font-label-md text-label-md rounded-lg hover:opacity-90 active:scale-95 transition-all shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">send</span>
+            <span class="">Copy &amp; Message on LinkedIn</span>
+        </button>
+    </div>
+</div>
+
+<!-- Lead Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer flex flex-col gap-3 group" onclick="console.log('Open Lead Detail: Sarah Jenkins')">
+    <div class="flex items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-2"><span class="text-xs font-semibold uppercase tracking-wider text-primary bg-blue-100/70 px-2 py-0.5 rounded">AI Automation</span><span class="text-xs font-semibold uppercase tracking-wider text-primary bg-primary-fixed px-2 py-0.5 rounded">In Outreach</span></div>
+        <div class="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-100 text-primary font-bold text-label-sm">
+            <span class="material-symbols-outlined text-[16px]">star</span>
+            <span class="">9.2</span>
+        </div>
+    </div>
+    <div>
+        <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface group-hover:text-primary transition-colors">Founder &amp; CEO</h3>
+        <p class="font-body-md text-body-md text-secondary mt-0.5">
+            <span class="font-bold text-on-surface">Sarah Jenkins</span> · <span class="">InnovateFlow</span>
+        </p>
+    </div>
+    <div class="border-l-2 border-primary/30 pl-3 py-1 my-0.5 bg-surface-container-low/50 rounded-r-lg">
+        <p class="font-body-md text-body-md text-on-surface-variant line-clamp-2 italic">
+            "Looking for AI Automation workflows to reduce response time for inbound marketing leads. High intent, ready for a demo next week."
+        </p>
+    </div>
+    <div class="flex items-center gap-3 overflow-x-auto hide-scrollbar py-1 text-secondary font-label-sm text-label-sm whitespace-nowrap"><span class="flex items-center gap-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[16px]">mail</span>Email</span><span class="text-outline-variant">•</span><span class="flex items-center gap-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[16px]">link</span>LinkedIn</span></div>
+    <div class="pt-2 border-t border-outline-variant/60 flex justify-end" onclick="event.stopPropagation()">
+        <button onclick="event.stopPropagation(); navigator.clipboard ? navigator.clipboard.writeText('Sarah Jenkins | Founder &amp; CEO @ InnovateFlow | sarah@innovateflow.ai') : null; window.open('https://www.linkedin.com', '_blank');" class="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-on-primary font-label-md text-label-md rounded-lg hover:opacity-90 active:scale-95 transition-all shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">send</span>
+            <span class="">Copy &amp; Message on LinkedIn</span>
+        </button>
+    </div>
+</div>
+
+<!-- Lead Card 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all cursor-pointer flex flex-col gap-3 group" onclick="console.log('Open Lead Detail: Mark Rivera')">
+    <div class="flex items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-2"><span class="text-xs font-semibold uppercase tracking-wider text-primary bg-blue-100/70 px-2 py-0.5 rounded">AEO/GEO</span><span class="text-xs font-semibold uppercase tracking-wider text-[#CA8A04] bg-yellow-100 px-2 py-0.5 rounded">Follow Up</span></div>
+        <div class="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-yellow-100 text-[#CA8A04] font-bold text-label-sm">
+            <span class="material-symbols-outlined text-[16px]">star</span>
+            <span class="">6.7</span>
+        </div>
+    </div>
+    <div>
+        <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface group-hover:text-primary transition-colors">VP Growth</h3>
+        <p class="font-body-md text-body-md text-secondary mt-0.5">
+            <span class="font-bold text-on-surface">Mark Rivera</span> · <span class="">Nexus Labs</span>
+        </p>
+    </div>
+    <div class="border-l-2 border-primary/30 pl-3 py-1 my-0.5 bg-surface-container-low/50 rounded-r-lg">
+        <p class="font-body-md text-body-md text-on-surface-variant line-clamp-2 italic">
+            "Evaluating AEO strategies for local search visibility. Budget constraints until start of new fiscal year in January."
+        </p>
+    </div>
+    <div class="flex items-center gap-3 overflow-x-auto hide-scrollbar py-1 text-secondary font-label-sm text-label-sm whitespace-nowrap"><span class="flex items-center gap-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[16px]">mail</span>Email</span><span class="text-outline-variant">•</span><span class="flex items-center gap-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[16px]">link</span>LinkedIn</span></div>
+    <div class="pt-2 border-t border-outline-variant/60 flex justify-end" onclick="event.stopPropagation()">
+        <button onclick="event.stopPropagation(); navigator.clipboard ? navigator.clipboard.writeText('Mark Rivera | VP Growth @ Nexus Labs | mark@nexuslabs.co') : null; window.open('https://www.linkedin.com', '_blank');" class="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-on-primary font-label-md text-label-md rounded-lg hover:opacity-90 active:scale-95 transition-all shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">send</span>
+            <span class="">Copy &amp; Message on LinkedIn</span>
+        </button>
+    </div>
+</div></div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 h-16 bg-surface-container-lowest border-t border-outline-variant">
+<a class="flex flex-col items-center justify-center text-secondary hover:bg-secondary-container transition-colors pt-[10px] w-full" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<!-- Active State: Leads -->
+<a class="flex flex-col items-center justify-center text-primary border-t-2 border-primary pt-2 w-full scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-label-sm text-label-sm">Leads</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary hover:bg-secondary-container transition-colors pt-[10px] w-full" href="#">
+<span class="material-symbols-outlined" data-icon="inbox">inbox</span>
+<span class="font-label-sm text-label-sm">Inbox</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary hover:bg-secondary-container transition-colors pt-[10px] w-full" href="#">
+<span class="material-symbols-outlined" data-icon="sync">sync</span>
+<span class="font-label-sm text-label-sm">Sync</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary hover:bg-secondary-container transition-colors pt-[10px] w-full" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-sm text-label-sm">Settings</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions for tabs
+        const tabs = document.querySelectorAll('.flex-none');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => {
+                    t.classList.remove('active-tab-indicator', 'text-primary');
+                    t.classList.add('text-secondary');
+                });
+                tab.classList.add('active-tab-indicator', 'text-primary');
+                tab.classList.remove('text-secondary');
+            });
+        });
+
+        // Toggle filter chip state
+        const filterChips = document.querySelectorAll('.flex.items-center.gap-1.5.px-3.py-1.5');
+        filterChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                chip.classList.toggle('bg-primary-container');
+                chip.classList.toggle('text-on-primary-container');
+                chip.classList.toggle('border-primary-container');
+            });
+        });
+    </script>
+
+
+
+
+</body></html>

@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="100%" height="100%">
+  <defs>
+    <!-- Background studio glow -->
+    <radialGradient id="bgGlow" cx="65%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="60%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#020617" />
+    </radialGradient>
+
+    <!-- Warm accent studio light on right -->
+    <radialGradient id="warmLight" cx="85%" cy="30%" r="50%">
+      <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Cool cyan ambient monitor glow on left -->
+    <radialGradient id="cyanLight" cx="15%" cy="70%" r="50%">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Skin gradients -->
+    <linearGradient id="skin" x1="20%" y1="20%" x2="85%" y2="85%">
+      <stop offset="0%" stop-color="#deb08f" />
+      <stop offset="45%" stop-color="#c68a62" />
+      <stop offset="85%" stop-color="#a6673f" />
+      <stop offset="100%" stop-color="#7d4421" />
+    </linearGradient>
+
+    <linearGradient id="skinShadow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9a5a35" />
+      <stop offset="100%" stop-color="#673418" />
+    </linearGradient>
+
+    <!-- Hair gradient -->
+    <linearGradient id="hair" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2d2926" />
+      <stop offset="50%" stop-color="#181615" />
+      <stop offset="100%" stop-color="#0a0908" />
+    </linearGradient>
+
+    <!-- Turtleneck sweater gradient -->
+    <linearGradient id="sweater" x1="30%" y1="0%" x2="70%" y2="100%">
+      <stop offset="0%" stop-color="#6b1527" />
+      <stop offset="45%" stop-color="#500e1c" />
+      <stop offset="100%" stop-color="#2e0610" />
+    </linearGradient>
+
+    <!-- Headphones metallic accents -->
+    <linearGradient id="metal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#71717a" />
+      <stop offset="50%" stop-color="#27272a" />
+      <stop offset="100%" stop-color="#52525b" />
+    </linearGradient>
+
+    <clipPath id="circleClip">
+      <circle cx="128" cy="128" r="128" />
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#circleClip)">
+    <!-- 1. Studio background -->
+    <rect width="256" height="256" fill="url(#bgGlow)" />
+    <rect width="256" height="256" fill="url(#warmLight)" />
+    <rect width="256" height="256" fill="url(#cyanLight)" />
+
+    <!-- 2. Ergonomic gaming/office chair in background -->
+    <!-- Chair backrest wings -->
+    <path d="M 12 110 C 12 85, 30 70, 52 75 C 65 78, 70 95, 68 135 C 65 170, 50 190, 25 185 Z" fill="#0f172a" stroke="#1e293b" stroke-width="2" />
+    <path d="M 28 88 C 38 88, 48 95, 50 115 C 52 135, 46 160, 32 165 C 24 165, 22 145, 24 125 Z" fill="#090d16" />
+    <!-- Chair harness cutout slot -->
+    <rect x="36" y="102" width="10" height="22" rx="4" fill="#1e293b" />
+
+    <!-- 3. Upper torso / Burgundy Turtleneck -->
+    <path d="M 25 256 C 25 210, 65 185, 110 182 C 145 180, 195 190, 235 218 C 245 225, 252 240, 256 256 Z" fill="url(#sweater)" />
+    
+    <!-- Turtleneck ribbed folds -->
+    <path d="M 75 225 C 110 235, 160 232, 195 222" stroke="#3b0813" stroke-width="3" fill="none" opacity="0.6" />
+    <path d="M 90 240 C 125 248, 170 244, 210 235" stroke="#3b0813" stroke-width="3" fill="none" opacity="0.6" />
+    <path d="M 50 250 C 90 255, 150 252, 215 248" stroke="#3b0813" stroke-width="2" fill="none" opacity="0.4" />
+
+    <!-- Turtleneck High Collar -->
+    <path d="M 86 165 C 86 150, 110 146, 138 146 C 166 146, 184 152, 184 168 C 184 186, 162 195, 136 195 C 108 195, 86 184, 86 165 Z" fill="#500e1c" stroke="#380712" stroke-width="1.5" />
+    <path d="M 92 166 C 105 174, 135 178, 168 174 C 176 172, 180 169, 182 166" fill="none" stroke="#6b1527" stroke-width="2" />
+    <path d="M 96 175 C 110 182, 136 185, 162 181" fill="none" stroke="#2e0610" stroke-width="2" />
+
+    <!-- 4. Headphones around neck -->
+    <!-- Left earcup (viewer left) -->
+    <g transform="translate(68, 152) rotate(12)">
+      <rect x="-14" y="-22" width="28" height="44" rx="14" fill="#18181b" stroke="#3f3f46" stroke-width="1.5" />
+      <rect x="-10" y="-18" width="20" height="36" rx="10" fill="#09090b" />
+      <circle cx="0" cy="0" r="6" fill="url(#metal)" />
+      <!-- Silver swivel mount -->
+      <path d="M -8 -22 L -8 -30 L 8 -30 L 8 -22" fill="none" stroke="#71717a" stroke-width="3" stroke-linecap="round" />
+    </g>
+
+    <!-- Headband resting behind neck -->
+    <path d="M 76 135 C 105 125, 155 128, 190 142" fill="none" stroke="#27272a" stroke-width="12" stroke-linecap="round" />
+    <path d="M 78 135 C 105 126, 155 129, 188 142" fill="none" stroke="#3f3f46" stroke-width="3" stroke-linecap="round" />
+
+    <!-- Right earcup (viewer right) -->
+    <g transform="translate(186, 165) rotate(-15)">
+      <rect x="-12" y="-20" width="24" height="40" rx="12" fill="#18181b" stroke="#3f3f46" stroke-width="1.5" />
+      <rect x="-8" y="-16" width="16" height="32" rx="8" fill="#09090b" />
+      <circle cx="0" cy="0" r="5" fill="url(#metal)" />
+    </g>
+
+    <!-- 5. Neck & Chin Shadow -->
+    <path d="M 112 135 L 112 165 C 122 170, 142 170, 152 162 L 152 135 Z" fill="url(#skinShadow)" />
+
+    <!-- 6. Head & Face (3/4 Profile turned slightly right) -->
+    <!-- Base Head Shape -->
+    <path d="M 96 112 C 90 92, 92 68, 108 50 C 122 36, 152 35, 172 46 C 190 58, 196 82, 194 104 C 192 122, 182 136, 170 144 C 152 154, 126 152, 110 140 C 100 132, 96 122, 96 112 Z" fill="url(#skin)" />
+
+    <!-- Ear (viewer left/profile) -->
+    <path d="M 96 92 C 88 92, 84 98, 86 108 C 88 118, 94 122, 98 120 C 100 114, 99 98, 96 92 Z" fill="#b87b52" stroke="#8c4e28" stroke-width="1" />
+    <path d="M 92 100 C 90 104, 92 110, 95 112" fill="none" stroke="#7a3f1d" stroke-width="1.5" stroke-linecap="round" />
+
+    <!-- Hair (Full, stylish, textured on top with neat taper) -->
+    <path d="M 95 85 C 92 68, 98 46, 114 36 C 128 27, 156 26, 176 34 C 188 40, 198 52, 198 68 C 198 74, 196 78, 192 78 C 188 64, 180 52, 166 48 C 148 44, 124 48, 112 60 C 104 68, 102 78, 100 86 Z" fill="url(#hair)" />
+    <!-- Hair volume strokes -->
+    <path d="M 112 36 C 126 30, 152 28, 172 36" stroke="#3f3a36" stroke-width="3" fill="none" stroke-linecap="round" />
+    <path d="M 124 44 C 142 38, 168 40, 184 48" stroke="#3f3a36" stroke-width="2.5" fill="none" stroke-linecap="round" />
+    <path d="M 136 50 C 150 46, 170 48, 185 56" stroke="#3f3a36" stroke-width="2" fill="none" stroke-linecap="round" />
+
+    <!-- Sideburns -->
+    <path d="M 98 84 L 98 102 C 100 102, 103 98, 104 92 Z" fill="#181615" />
+
+    <!-- 7. Facial Features -->
+    <!-- Eyebrows -->
+    <!-- Left eyebrow -->
+    <path d="M 116 80 C 124 76, 134 76, 140 80" stroke="#1c1917" stroke-width="3.5" stroke-linecap="round" fill="none" />
+    <!-- Right eyebrow (further away) -->
+    <path d="M 158 80 C 166 76, 178 77, 184 81" stroke="#1c1917" stroke-width="3" stroke-linecap="round" fill="none" />
+
+    <!-- Eyes (focused, intelligent gaze) -->
+    <!-- Left eye -->
+    <path d="M 120 88 C 125 84, 132 84, 138 88 C 133 91, 125 91, 120 88 Z" fill="#ffffff" opacity="0.9" />
+    <circle cx="130" cy="87.5" r="3.2" fill="#1c1917" />
+    <circle cx="131" cy="86.5" r="1" fill="#ffffff" />
+    <!-- Right eye -->
+    <path d="M 162 88 C 167 85, 174 85, 178 88 C 174 91, 167 91, 162 88 Z" fill="#ffffff" opacity="0.9" />
+    <circle cx="170" cy="87.5" r="3" fill="#1c1917" />
+    <circle cx="171" cy="86.5" r="1" fill="#ffffff" />
+
+    <!-- Nose (well-defined bridge, 3/4 angle) -->
+    <path d="M 148 78 L 152 102 C 150 105, 145 107, 142 105" fill="none" stroke="#8f502a" stroke-width="2" stroke-linecap="round" />
+    <path d="M 152 102 C 155 104, 158 103, 160 101" fill="none" stroke="#8f502a" stroke-width="1.5" />
+
+    <!-- 8. Glasses (Stylish, thin metallic rectangular frame) -->
+    <!-- Left lens rim -->
+    <rect x="114" y="80" width="28" height="18" rx="4" fill="none" stroke="#475569" stroke-width="2" />
+    <path d="M 116 83 L 138 83" stroke="#94a3b8" stroke-width="1" opacity="0.6" />
+    <!-- Bridge -->
+    <path d="M 142 86 C 148 84, 152 84, 156 86" fill="none" stroke="#475569" stroke-width="2" />
+    <!-- Right lens rim -->
+    <rect x="156" y="80" width="26" height="18" rx="4" fill="none" stroke="#475569" stroke-width="2" />
+    <path d="M 158 83 L 178 83" stroke="#94a3b8" stroke-width="1" opacity="0.6" />
+    <!-- Glasses temple (arm extending to ear) -->
+    <path d="M 114 84 L 96 88" stroke="#475569" stroke-width="1.8" stroke-linecap="round" />
+
+    <!-- 9. Full Neat Beard & Mustache -->
+    <!-- Mustache -->
+    <path d="M 136 112 C 144 109, 152 110, 162 113 C 158 118, 148 119, 138 116 Z" fill="#181615" />
+    <!-- Mouth line -->
+    <path d="M 140 119 C 146 122, 154 122, 160 119" stroke="#7a3f1d" stroke-width="1.5" fill="none" />
+    <!-- Beard (full jawline, chin, and cheek taper) -->
+    <path d="M 98 102 C 104 115, 114 130, 126 138 C 138 146, 156 148, 168 143 C 176 139, 184 128, 186 116 C 188 122, 186 132, 178 142 C 166 154, 142 155, 124 146 C 108 136, 100 120, 98 102 Z" fill="#181615" />
+    <path d="M 132 124 C 138 123, 148 123, 156 125 C 152 134, 140 136, 134 130 Z" fill="#181615" />
+
+    <!-- 10. Subtle highlight rim on face & shoulder -->
+    <path d="M 188 56 C 194 72, 194 92, 188 110" stroke="#fcd34d" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.3" />
+    <path d="M 200 200 C 220 212, 236 226, 245 245" stroke="#fcd34d" stroke-width="1.5" fill="none" opacity="0.25" />
+  </g>
+</svg>

@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="100%" height="100%">
+  <defs>
+    <!-- Clean high-key minimalist studio background -->
+    <radialGradient id="studioBg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="65%" stop-color="#f1f5f9" />
+      <stop offset="100%" stop-color="#e2e8f0" />
+    </radialGradient>
+
+    <!-- Skin gradients -->
+    <linearGradient id="skin" x1="30%" y1="10%" x2="80%" y2="90%">
+      <stop offset="0%" stop-color="#e2b595" />
+      <stop offset="50%" stop-color="#c88b64" />
+      <stop offset="90%" stop-color="#a4643b" />
+      <stop offset="100%" stop-color="#7c421f" />
+    </linearGradient>
+
+    <linearGradient id="skinShadow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#9a5a35" />
+      <stop offset="100%" stop-color="#6b361a" />
+    </linearGradient>
+
+    <!-- Hair gradient -->
+    <linearGradient id="hair" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#322d29" />
+      <stop offset="60%" stop-color="#1c1917" />
+      <stop offset="100%" stop-color="#0a0908" />
+    </linearGradient>
+
+    <!-- Burgundy turtleneck sweater -->
+    <linearGradient id="sweater" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#6f1629" />
+      <stop offset="50%" stop-color="#520f1e" />
+      <stop offset="100%" stop-color="#2d0610" />
+    </linearGradient>
+
+    <!-- Camera body gradient -->
+    <linearGradient id="cameraBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3f3f46" />
+      <stop offset="50%" stop-color="#27272a" />
+      <stop offset="100%" stop-color="#18181b" />
+    </linearGradient>
+
+    <!-- Camera lens glass reflections -->
+    <radialGradient id="lensGlass" cx="45%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#1e1b4b" />
+      <stop offset="50%" stop-color="#090d16" />
+      <stop offset="85%" stop-color="#030712" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </radialGradient>
+
+    <linearGradient id="lensSheen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.6" />
+      <stop offset="45%" stop-color="#818cf8" stop-opacity="0.3" />
+      <stop offset="80%" stop-color="#c084fc" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </linearGradient>
+
+    <clipPath id="circleClip">
+      <circle cx="128" cy="128" r="128" />
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#circleClip)">
+    <!-- 1. Minimalist studio background -->
+    <rect width="256" height="256" fill="url(#studioBg)" />
+
+    <!-- 2. Shoulders & Burgundy Turtleneck -->
+    <path d="M 20 256 C 20 215, 60 188, 105 184 C 145 182, 195 188, 236 215 C 248 224, 254 240, 256 256 Z" fill="url(#sweater)" />
+    
+    <!-- Ribbed collar folds -->
+    <path d="M 85 168 C 85 152, 110 148, 138 148 C 166 148, 185 154, 185 170 C 185 188, 164 196, 138 196 C 110 196, 85 186, 85 168 Z" fill="#520f1e" stroke="#360712" stroke-width="1.5" />
+    <path d="M 94 170 C 110 178, 140 180, 168 176" fill="none" stroke="#6f1629" stroke-width="2" />
+    <path d="M 98 178 C 114 186, 142 188, 166 182" fill="none" stroke="#2d0610" stroke-width="2" />
+
+    <!-- 3. Head base -->
+    <path d="M 98 120 C 90 98, 94 72, 108 52 C 122 36, 150 34, 170 44 C 190 56, 198 78, 196 102 C 194 120, 184 136, 172 144 C 154 154, 126 152, 110 142 C 102 134, 98 126, 98 120 Z" fill="url(#skin)" />
+
+    <!-- Neck & shadow -->
+    <path d="M 112 138 L 112 166 C 124 172, 148 172, 160 164 L 160 138 Z" fill="url(#skinShadow)" />
+
+    <!-- Right ear (viewer right) -->
+    <path d="M 194 92 C 202 92, 206 98, 204 108 C 202 118, 196 122, 192 120 C 190 114, 191 98, 194 92 Z" fill="#c88b64" stroke="#9a5a35" stroke-width="1" />
+
+    <!-- 4. Hair (voluminous, styled modern taper) -->
+    <path d="M 98 76 C 94 56, 102 38, 118 28 C 134 18, 164 18, 184 28 C 198 36, 206 50, 204 68 C 202 76, 198 80, 194 80 C 190 66, 182 52, 168 46 C 148 40, 122 44, 110 58 C 104 66, 102 72, 100 78 Z" fill="url(#hair)" />
+    <path d="M 116 28 C 132 20, 160 20, 180 30" stroke="#443e39" stroke-width="3" fill="none" stroke-linecap="round" />
+    <path d="M 128 36 C 146 28, 174 30, 190 40" stroke="#443e39" stroke-width="2.5" fill="none" stroke-linecap="round" />
+
+    <!-- 5. Visible Left Face Half (Viewer Right Eye & Temple) -->
+    <!-- Left eyebrow (viewer right side) -->
+    <path d="M 152 78 C 160 74, 172 74, 182 78" stroke="#1c1917" stroke-width="3.5" stroke-linecap="round" fill="none" />
+
+    <!-- Left eye (focused intensely through glass) -->
+    <path d="M 156 86 C 162 82, 170 82, 176 86 C 170 90, 162 90, 156 86 Z" fill="#ffffff" />
+    <circle cx="166" cy="85.5" r="3.4" fill="#1c1917" />
+    <circle cx="167" cy="84.5" r="1.1" fill="#ffffff" />
+
+    <!-- Left glasses frame (viewer right side) -->
+    <rect x="150" y="78" width="28" height="18" rx="4" fill="none" stroke="#334155" stroke-width="2" />
+    <path d="M 152 81 L 174 81" stroke="#94a3b8" stroke-width="1" opacity="0.6" />
+    <!-- Glasses temple extending to right ear -->
+    <path d="M 178 82 L 196 88" stroke="#334155" stroke-width="1.8" stroke-linecap="round" />
+
+    <!-- Nose profile peek next to camera -->
+    <path d="M 148 86 L 149 104 C 147 106, 144 107, 142 106" fill="none" stroke="#8c4e28" stroke-width="2" stroke-linecap="round" />
+
+    <!-- 6. Beard and Mustache -->
+    <!-- Mustache right section -->
+    <path d="M 138 112 C 146 109, 158 111, 168 114 C 164 119, 152 120, 140 117 Z" fill="#181615" />
+    <!-- Beard jawline & chin -->
+    <path d="M 134 126 C 142 124, 154 125, 162 127 C 158 136, 144 138, 136 132 Z" fill="#181615" />
+    <path d="M 160 118 C 172 128, 184 126, 188 114 C 188 124, 182 136, 170 144 C 156 152, 138 152, 130 146 Z" fill="#181615" />
+
+    <!-- 7. Professional Camera held up to Right Eye (Viewer Left) -->
+    <!-- Hands holding camera: Left hand gripping camera body -->
+    <g id="cameraAndHands">
+      <!-- Right hand fingers gripping lens / body from left -->
+      <!-- Arm coming up -->
+      <path d="M 28 200 C 35 150, 48 115, 62 105 C 68 100, 75 102, 78 112 L 80 145 C 68 165, 52 195, 45 225 Z" fill="url(#skin)" />
+      <!-- Fingers wrapped around camera grip -->
+      <path d="M 64 96 C 68 88, 76 88, 80 96 L 80 118 C 76 122, 68 122, 64 116 Z" fill="#b97c53" stroke="#844824" stroke-width="1" />
+      <path d="M 66 112 C 70 106, 78 106, 82 112 L 82 130 C 78 134, 70 134, 66 128 Z" fill="#b97c53" stroke="#844824" stroke-width="1" />
+
+      <!-- Camera Body (Matte black professional DSLR / Mirrorless) -->
+      <path d="M 72 82 C 72 76, 76 72, 82 72 L 140 72 C 144 72, 146 75, 146 80 L 146 142 C 146 148, 142 152, 136 152 L 80 152 C 74 152, 72 148, 72 142 Z" fill="url(#cameraBody)" stroke="#18181b" stroke-width="2" />
+      
+      <!-- Camera Viewfinder / Flash Pentaprism hump -->
+      <path d="M 98 72 L 105 60 L 126 60 L 133 72 Z" fill="#18181b" stroke="#27272a" stroke-width="1" />
+      <!-- Hotshoe mount on top -->
+      <rect x="110" y="57" width="12" height="4" rx="1" fill="#71717a" />
+      
+      <!-- Red Cine/Pro Ring or Shutter button -->
+      <circle cx="88" cy="68" r="3.5" fill="#e11d48" />
+
+      <!-- 8. Front Optical Camera Lens (The dominant element covering right eye) -->
+      <!-- Outer barrel -->
+      <circle cx="114" cy="112" r="38" fill="#18181b" stroke="#3f3f46" stroke-width="2" />
+      <!-- Focus ring texture ribs -->
+      <circle cx="114" cy="112" r="35" fill="none" stroke="#27272a" stroke-width="4" stroke-dasharray="2,2" />
+      <circle cx="114" cy="112" r="32" fill="#09090b" stroke="#52525b" stroke-width="1.5" />
+      
+      <!-- Metallic inner bezel / Filter thread -->
+      <circle cx="114" cy="112" r="28" fill="#18181b" />
+      <circle cx="114" cy="112" r="26" fill="none" stroke="#a1a1aa" stroke-width="1" />
+
+      <!-- Deep Glass Elements -->
+      <circle cx="114" cy="112" r="24" fill="url(#lensGlass)" />
+      <circle cx="114" cy="112" r="16" fill="#020617" />
+      <circle cx="114" cy="112" r="9" fill="#090d16" />
+      
+      <!-- Anti-reflection lens coating reflections (Emerald / Cyan / Violet sheen) -->
+      <path d="M 95 98 C 102 92, 122 90, 134 98 C 130 106, 108 106, 95 98 Z" fill="url(#lensSheen)" opacity="0.85" />
+      <ellipse cx="106" cy="104" rx="7" ry="4" transform="rotate(-25, 106, 104)" fill="#ffffff" opacity="0.7" />
+      <ellipse cx="122" cy="122" rx="4" ry="2.5" fill="#38bdf8" opacity="0.6" />
+      <circle cx="118" cy="120" r="1.5" fill="#ffffff" opacity="0.9" />
+
+      <!-- Left hand fingers supporting bottom of lens -->
+      <path d="M 92 148 C 96 142, 106 142, 110 148 L 114 165 C 108 170, 96 170, 92 165 Z" fill="#b97c53" stroke="#844824" stroke-width="1" />
+      <path d="M 112 148 C 116 142, 126 142, 130 148 L 132 165 C 126 170, 116 170, 112 165 Z" fill="#b97c53" stroke="#844824" stroke-width="1" />
+    </g>
+  </g>
+</svg>
